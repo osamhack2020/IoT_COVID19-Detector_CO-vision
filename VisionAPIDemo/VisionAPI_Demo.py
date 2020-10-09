@@ -1,7 +1,9 @@
+#https://www.youtube.com/watch?v=xKvffLRSyPk&list=PL3JVwFmb_BnSLFyVThMfEavAEZYHBpWEd&index=1
+
 import os, io
 from google.cloud import vision
 import pandas as pd
-#from google.cloud.vision import types
+#from google.cloud.vision import types -> 버전 업그레이드 되면서 types 사용 
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 
