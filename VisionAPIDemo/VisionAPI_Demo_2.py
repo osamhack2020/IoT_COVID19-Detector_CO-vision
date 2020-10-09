@@ -1,6 +1,8 @@
+#this is for handwriting images but I think it works better than VisionAPI_Demo.py
+
 import os, io
 from google.cloud import vision
-import pandas as pd
+#import pandas as pd
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
