@@ -3,7 +3,7 @@
 import os, io
 from google.cloud import vision
 import pandas as pd
-#from google.cloud.vision import types -> 버전 업그레이드 되면서 types 사용 
+#from google.cloud.vision import types -> 버전 업그레이드 되면서 types 사용 안함
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 
