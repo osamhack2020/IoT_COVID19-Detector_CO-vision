@@ -128,6 +128,7 @@ while cap.isOpened():
             temperature = 36.5 #현재 온도 변수가 없으므로 임시로 설정
 
             #############################################################################
+            #GoogleVisionAPI branch  에서 추가한 내용
             IMAGE_FILE = 'No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
             #FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
             #FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
