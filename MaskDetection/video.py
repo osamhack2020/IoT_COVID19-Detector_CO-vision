@@ -3,10 +3,18 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.models import load_model
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-import os
+#import matplotlib.pyplot as plt
+import os, io
 import json
 import requests
+from google.cloud import vision
+
+#############################################################################
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
+client = vision.ImageAnnotatorClient()
+#############################################################################
+
+
 
 # 카카오톡 메시지 커스텀 템플릿 주소 : https://kapi.kakao.com/v2/api/talk/memo/send
 talk_url = "https://kapi.kakao.com/v2/api/talk/memo/send"
@@ -44,7 +52,7 @@ facenet = cv2.dnn.readNet('models/deploy.prototxt', 'models/res10_300x300_ssd_it
 #FaceDetector 모델 > OpenCv의 DNN
 model = load_model('models/mask_detector.model')
 #MaskDetector 모델 > Keras 모델
-cap = cv2.VideoCapture('imgs/03.mp4')
+cap = cv2.VideoCapture('imgs/junha_video.mp4')
 #동영상 로드
 #노트북 캠의 실시간 영상을 받아오고 싶으면 0을 넣으면 된다!
 ret, img = cap.read()
@@ -58,6 +66,10 @@ while cap.isOpened():
     ret, img = cap.read()
     if not ret:
         break
+    #Optional step 영상이 돌려져 있으면 돌리기
+    img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+
+    
     h, w = img.shape[:2]
 
     blob = cv2.dnn.blobFromImage(img, scalefactor=1., size=(300, 300), mean=(104., 177., 123.))
@@ -114,8 +126,32 @@ while cap.isOpened():
 
             temperature = 36.5 #현재 온도 변수가 없으므로 임시로 설정
 
+            #############################################################################
+            IMAGE_FILE = str(i)+'_'+str('No Mask %d%%' % (nomask * 100)) + '.jpg'
+            #FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
+            #FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
+
+            with io.open(IMAGE_FILE, 'rb') as image_file:
+                content = image_file.read()
+
+            image = vision.Image(content=content)
+            response = client.document_text_detection(image=image)
+            docText = response.full_text_annotation.text
+            #print(docText)
+
+            Final_Text = ""
+            Flag = False
+            for x in docText:
+                if ord('가') <= ord(x) <= ord('힣'):
+                    Flag = True
+                    Final_Text += x
+            
+            print('한글 -> ' + Final_Text)
+
+            #############################################################################
+
             # 전달할 메시지 내용 JSON형식으로 저장후 전달
-            message_description = '해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+            message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
             template = {
                 "object_type": "feed",
                 "content": {
