@@ -9,10 +9,10 @@ import json
 import requests
 from google.cloud import vision
 
-#############################################################################
+#구글 API 설정
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
-#############################################################################
+
 
 
 
@@ -68,7 +68,6 @@ while cap.isOpened():
         break
     #Optional step 영상이 돌려져 있으면 돌리기
     img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-
     
     h, w = img.shape[:2]
 
