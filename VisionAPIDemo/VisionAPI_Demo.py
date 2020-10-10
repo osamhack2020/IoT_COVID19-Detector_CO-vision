@@ -9,7 +9,7 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 
 client = vision.ImageAnnotatorClient()
 
-FILE_NAME = 'jun_name3.png'
+FILE_NAME = 'jun_name1.png'
 FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
 
 with io.open(os.path.join(FOLDER_PATH, FILE_NAME), 'rb') as image_file:
