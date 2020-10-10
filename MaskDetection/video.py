@@ -61,7 +61,7 @@ fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
 out = cv2.VideoWriter('output.mp4', fourcc, 1, (img.shape[1], img.shape[0]))
 #cv2.VideoWriter(outputFile, fourcc, frame, size) : fourcc는 코덱 정보, frame은 초당 저장될 프레임, size는 저장될 사이즈를 뜻합니다 cv2.VideoWriter_fourcc('D','I','V','X') 이런식으로 사용
 #현재 테스트 동영상의 프레임은 25
-
+number = 0 #마스크 안 쓴 사람 사진 저장할 때 사용
 while cap.isOpened():
     ret, img = cap.read()
     if not ret:
@@ -122,12 +122,13 @@ while cap.isOpened():
         #마스크 안썻을 확률이 일정확률 이상인 경우
         if nomask >= 0.75:
             #해당 인원 사진 저장
-            cv2.imwrite(str(i)+'_'+str('No Mask %d%%' % (nomask * 100)) + '.jpg', result_img)
+            number += 1
+            cv2.imwrite('No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg', result_img)
 
             temperature = 36.5 #현재 온도 변수가 없으므로 임시로 설정
 
             #############################################################################
-            IMAGE_FILE = str(i)+'_'+str('No Mask %d%%' % (nomask * 100)) + '.jpg'
+            IMAGE_FILE = 'No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
             #FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
             #FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
 
