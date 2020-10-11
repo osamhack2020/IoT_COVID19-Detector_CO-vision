@@ -82,7 +82,8 @@ while cap.isOpened():
         currentTime = datetime.now()
         if (nomask >= 0.75 and (currentTime-lastCaptureTime).seconds > 1):
             lastCaptureTime = datetime.now() #직전 캡쳐시간 갱신
-            cv2.imwrite(str(i)+'_'+str('No Mask %d%%' % (nomask * 100)) + '.jpg', result_img)
+            cv2.imwrite(str(i)+'th person_'+str('No Mask %d%%' % (nomask * 100)) + '.jpg', result_img) # 현재 모니터링하고 있는 영상에 있는 전체 화면 캡쳐
+            cv2.imwrite(str(i)+'th person_'+str('No Mask %d%% (face)' % (nomask * 100)) + '.jpg', face) # 마스크 미착용으로 검출된 얼굴영역 저장
 
     out.write(result_img)
     cv2.imshow('result', result_img) #실시간 모니터링하고 있는 화면을 띄워줌
