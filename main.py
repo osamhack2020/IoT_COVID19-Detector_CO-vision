@@ -8,7 +8,14 @@ import os, io
 import json
 import requests
 from google.cloud import vision
+#########################################################################텔레그렘 수정 내용
+import telepot
 
+# bot = co_vision_bot
+token = '1130712531:AAE3W0J9Y3s2opGvE_c8My8e96-vhqlLAGE'
+mc = '1314303321'
+bot = telepot.Bot(token)
+#########################################################################
 # 구글 API 설정
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
@@ -150,37 +157,43 @@ while cap.isOpened():
             print('한글 -> ' + Final_Text)
 
             #############################################################################
+            message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+            
+            
+            f = open(IMAGE_FILE,'rb')
+            response = bot.sendPhoto(mc, f)
+            response = bot.sendMessage(mc,message_description)
 
             # 전달할 메시지 내용 JSON형식으로 저장후 전달
-            message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
-            template = {
-                "object_type": "feed",
-                "content": {
-                    "image_url": "IMAGE_URL, 클라이언트의 사진을 가져오거나 서버의 사진을 가져오기가 아닌 URL상에서 가져와야함",
-                    "title": "이상증상자 및 마스크 미착용자 식별",
-                    "description": message_description,
-                    "image_width": 640,
-                    "image_height": 640,
-                    "link": {
-                        "web_url": "http://www.daum.net",
-                        "mobile_web_url": "http://m.daum.net",
-                    }
-                }
-            }
-            data = {
-                # 허동준 UUID : MAIwCT4JPggkFiAVJhIhFCMbNwM6CzsLPnY
-                # 조동현 UUID : MAIzAjYFNQcxHSgaLh8qHi4aNgI7CjoKP28
-                # 친구목록에서 얻어온 UUID 값으로 해야 하므로 수정 필요
-                'receiver_uuids': '["MAIzAjYFNQcxHSgaLh8qHi4aNgI7CjoKP28"]',
-                "template_object": json.dumps(template)
-            }
-            # 메시지 전송 및 오류 검출
-            response = requests.post(send_friend_url, headers=headers, data=data)
-            print(response.status_code)
-            if response.json().get('result_code') == 0:
-                print('메시지를 성공적으로 보냈습니다.')
-            else:
-                print('메시지를 성공적으로 보내지 못했습니다. 오류메시지 : ' + str(response.json()))
+            # message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+            # template = {
+            #     "object_type": "feed",
+            #     "content": {
+            #         "image_url": "IMAGE_URL, 클라이언트의 사진을 가져오거나 서버의 사진을 가져오기가 아닌 URL상에서 가져와야함",
+            #         "title": "이상증상자 및 마스크 미착용자 식별",
+            #         "description": message_description,
+            #         "image_width": 640,
+            #         "image_height": 640,
+            #         "link": {
+            #             "web_url": "http://www.daum.net",
+            #             "mobile_web_url": "http://m.daum.net",
+            #         }
+            #     }
+            # }
+            # data = {
+            #     # 허동준 UUID : MAIwCT4JPggkFiAVJhIhFCMbNwM6CzsLPnY
+            #     # 조동현 UUID : MAIzAjYFNQcxHSgaLh8qHi4aNgI7CjoKP28
+            #     # 친구목록에서 얻어온 UUID 값으로 해야 하므로 수정 필요
+            #     'receiver_uuids': '["MAIzAjYFNQcxHSgaLh8qHi4aNgI7CjoKP28"]',
+            #     "template_object": json.dumps(template)
+            # }
+            # # 메시지 전송 및 오류 검출
+            # response = requests.post(send_friend_url, headers=headers, data=data)
+            # print(response.status_code)
+            # if response.json().get('result_code') == 0:
+            #     print('메시지를 성공적으로 보냈습니다.')
+            # else:
+            #     print('메시지를 성공적으로 보내지 못했습니다. 오류메시지 : ' + str(response.json()))
 
     out.write(result_img)
     cv2.imshow('result', result_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
