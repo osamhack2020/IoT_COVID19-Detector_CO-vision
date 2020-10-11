@@ -19,12 +19,12 @@ get_friend_list_url = 'https://kapi.kakao.com/v1/api/talk/friends'
 send_me_url = 'https://kapi.kakao.com/v2/api/talk/memo/default/send'
 send_friend_url = 'https://kapi.kakao.com/v1/api/talk/friends/message/default/send'
 # 카카오 사용자 토큰
+with open("kakao_code.json","r") as fp:
+    tokens = json.load(fp)
 token = 'REST API'  # REST API
-accessToken = 'accessToken'
+#accessToken = 'accessToken'
 headers = {
-    "Authorization": 'Bearer ' + str(accessToken).format(
-        token=token
-    )
+    "Authorization": 'Bearer ' + tokens['access_token']
 }
 
 
@@ -175,7 +175,7 @@ while cap.isOpened():
                 "template_object": json.dumps(template)
             }
             # 메시지 전송 및 오류 검출
-            response = requests.post(send_friend_url, headers=headers, data=data)
+            response = requests.post(send_me_url, headers=headers, data=data)
             print(response.status_code)
             if response.json().get('result_code') == 0:
                 print('메시지를 성공적으로 보냈습니다.')
