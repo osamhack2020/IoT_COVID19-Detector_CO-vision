@@ -5,20 +5,22 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import os
+from datetime import datetime, timedelta
 
+lastCaptureTime = datetime(1900, 1, 1, 1, 1, 1) #최초 이미지 캡쳐시간 초기화
 facenet = cv2.dnn.readNet('models/deploy.prototxt', 'models/res10_300x300_ssd_iter_140000.caffemodel')
 #FaceDetector 모델 > OpenCv의 DNN
 model = load_model('models/mask_detector.model')
 #MaskDetector 모델 > Keras 모델
 
-cap = cv2.VideoCapture('imgs/03.mp4')
+cap = cv2.VideoCapture('imgs/04_crop.mp4')
 #동영상 로드
 #노트북 캠의 실시간 영상을 받아오고 싶으면 0을 넣으면 된다!
 ret, img = cap.read()
 #ret이 True이면 영상이 있다는 뜻
 
 fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-out = cv2.VideoWriter('output.mp4', fourcc, 1, (img.shape[1], img.shape[0]))
+out = cv2.VideoWriter('output.mp4', fourcc, cap.get(cv2.CAP_PROP_FPS), (img.shape[1], img.shape[0]))
 #cv2.VideoWriter(outputFile, fourcc, frame, size) : fourcc는 코덱 정보, frame은 초당 저장될 프레임, size는 저장될 사이즈를 뜻합니다 cv2.VideoWriter_fourcc('D','I','V','X') 이런식으로 사용
 #현재 테스트 동영상의 프레임은 25
 
@@ -76,8 +78,10 @@ while cap.isOpened():
         #계산된 결과를 현재 돌아가고 있는 얼굴영역 위에 Text를 써줌으로써 표시한다. 마스크 썼을확률은 label에 들어있음.
         cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, color=color, thickness=2, lineType=cv2.LINE_AA)
 
-        #마스크 안썻을 확률이 일정확률 미만인 경우 해당 사진 저장
-        if mask <0.75: 
+        #마스크 안썻을 확률이 일정확률 이상이며 직전 캡쳐시간과 현재 시간차가 1초 이상일경우 해당 이미지 저장
+        currentTime = datetime.now()
+        if (nomask >= 0.75 and (currentTime-lastCaptureTime).seconds > 1):
+            lastCaptureTime = datetime.now() #직전 캡쳐시간 갱신
             cv2.imwrite(str(i)+'_'+str('No Mask %d%%' % (nomask * 100)) + '.jpg', result_img)
 
     out.write(result_img)
