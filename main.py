@@ -139,6 +139,7 @@ while cap.isOpened():
             response = client.document_text_detection(image=image)
             docText = response.full_text_annotation.text
             # print(docText)
+            # 이부분 수정 필요
 
             Final_Text = ""
             Flag = False
