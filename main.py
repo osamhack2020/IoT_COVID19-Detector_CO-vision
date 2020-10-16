@@ -76,7 +76,7 @@ while cap.isOpened():
         break
     # Optional step 영상이 돌려져 있으면 돌리기
 
-    img = cv2.resize(img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
+    #img = cv2.resize(img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
 
     img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
@@ -125,14 +125,17 @@ while cap.isOpened():
             label = 'No Mask %d%%' % (nomask * 100)
 
         # mask 썼을확률 계산후 그에대한 결과를 보여주는 곳. 해당 얼굴영역보다 이전 인덱스는 이미 계산되어 이미지에 저장되어 있다.
-        cv2.rectangle(result_img, pt1=(x1, y1), pt2=(x2, y2), thickness=2, color=color, lineType=cv2.LINE_AA)
+        cv2.rectangle(result_img, pt1=(x1, y1), pt2=(x2, y2), thickness=3, color=color, lineType=cv2.LINE_AA)
         # 계산된 결과를 현재 돌아가고 있는 얼굴영역 위에 Text를 써줌으로써 표시한다. 마스크 썼을확률은 label에 들어있음.
         cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, color=color, thickness=2, lineType=cv2.LINE_AA)
 
         # 마스크 안썻을 확률이 일정확률 이상인 경우
         if nomask >= 0.75:
             out.write(result_img)
-            cv2.imshow('result', result_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
+            resized_img = cv2.resize(result_img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
+            cv2.imshow('result', resized_img)
+
+            #cv2.imshow('result', result_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
             # 해당 인원 사진 저장
             number += 1
             #마스크 안 쓴 경우 사진 저장
