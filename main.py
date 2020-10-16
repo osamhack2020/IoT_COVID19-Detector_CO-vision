@@ -10,6 +10,7 @@ import requests
 from google.cloud import vision
 #########################################################################텔레그렘 수정 내용
 import telepot
+import playsound
 
 # bot = co_vision_bot
 token = '1130712531:AAE3W0J9Y3s2opGvE_c8My8e96-vhqlLAGE'
@@ -74,6 +75,9 @@ while cap.isOpened():
     if not ret:
         break
     # Optional step 영상이 돌려져 있으면 돌리기
+
+    img = cv2.resize(img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
+
     img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
     h, w = img.shape[:2]
@@ -127,11 +131,16 @@ while cap.isOpened():
 
         # 마스크 안썻을 확률이 일정확률 이상인 경우
         if nomask >= 0.75:
+            out.write(result_img)
+            cv2.imshow('result', result_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
             # 해당 인원 사진 저장
             number += 1
+            #마스크 안 쓴 경우 사진 저장
             cv2.imwrite('No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg', result_img)
 
             temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
+
+            playsound.playsound('voice.mp3')
 
             #############################################################################
             # GoogleVisionAPI branch  에서 추가한 내용
@@ -195,8 +204,7 @@ while cap.isOpened():
             # else:
             #     print('메시지를 성공적으로 보내지 못했습니다. 오류메시지 : ' + str(response.json()))
 
-    out.write(result_img)
-    cv2.imshow('result', result_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
+
     if cv2.waitKey(1) == ord('q'):  # q누르면 동영상 종료
         break
 
