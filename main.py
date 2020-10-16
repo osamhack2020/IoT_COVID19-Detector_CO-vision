@@ -76,7 +76,7 @@ while cap.isOpened():
         break
     # Optional step 영상이 돌려져 있으면 돌리기
 
-    img = cv2.resize(img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
+    img = cv2.resize(img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
 
     img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
 
