@@ -15,7 +15,7 @@ import telepot
 token = '1130712531:AAE3W0J9Y3s2opGvE_c8My8e96-vhqlLAGE'
 mc = '1314303321'
 bot = telepot.Bot(token)
-#########################################################################
+####################################### ##################################
 # 구글 API 설정
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
@@ -135,11 +135,12 @@ while cap.isOpened():
 
             #############################################################################
             # GoogleVisionAPI branch  에서 추가한 내용
-            IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
+            #IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
             # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
             # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
+            Name_img = img[y2:h, 0:(x1+x2)/2]
 
-            with io.open(IMAGE_FILE, 'rb') as image_file:
+            with io.open(Name_img, 'rb') as image_file:
                 content = image_file.read()
 
             image = vision.Image(content=content)
@@ -196,6 +197,7 @@ while cap.isOpened():
             #     print('메시지를 성공적으로 보내지 못했습니다. 오류메시지 : ' + str(response.json()))
 
     out.write(result_img)
+    #resized_img = cv2.resize(result_img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
     cv2.imshow('result', result_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
     if cv2.waitKey(1) == ord('q'):  # q누르면 동영상 종료
         break
