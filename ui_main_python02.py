@@ -26,7 +26,7 @@ import cv2
 
 from ui_main_window_test02 import *
 
-
+from collections import deque
 
 
 
@@ -149,11 +149,42 @@ class MainWindow(QWidget):
         # self.cap =  cv2.VideoCapture(0) 으로 하면 웹캠 실시간으로 나옴
         self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
         self.capthermal = cv2.VideoCapture('imgs/junha_video.mp4')
-        self.number=0
+        self.number = 0
+        self.dq = deque()
         # start timer
         self.timer.start(20)
-    def put_img_to_labels(self):
-        pass
+    def put_img_to_labels(self, dq):
+        
+        image = self.dq[0]        
+        image = cv2.resize(image, dsize=(0, 0), fx=0.1, fy=0.1, interpolation=cv2.INTER_LINEAR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        height, width, channel = image.shape
+        step = channel * width
+        qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
+        self.ui.label.setPixmap(QPixmap.fromImage(qImg))
+
+
+        #label 에 FILE 사진 넣기
+        # if now_number - 1 > 0:
+        #     label_2_num = now_number - 1
+        #     FILE = 'No_Mask_File/' + '0'+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(label_2_num)) + '.jpg'
+        #     image = cv2.imread(FILE)
+        #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        #     height, width, channel = image.shape
+        #     step = channel * width
+        #     qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
+        #     self.ui.label_2.setPixmap(QPixmap.fromImage(qImg))
+        #     #label_2에 사진 넣기
+        # if now_number - 2 > 0:
+        #     label_3_num = now_number - 2
+        #     FILE = 'No_Mask_File/' + '0'+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(label_3_num)) + '.jpg'
+        #     image = cv2.imread(FILE)
+        #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        #     height, width, channel = image.shape
+        #     step = channel * width
+        #     qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
+        #     self.ui.label_3.setPixmap(QPixmap.fromImage(qImg))
+        
     def sound(self):
         pass
 
@@ -216,10 +247,15 @@ class MainWindow(QWidget):
             # 마스크 안썻을 확률이 일정확률 이상인 경우
             if nomask >= 0.75:
                 # 해당 인원 사진 저장
+                self.dq.appendleft(face)
+                if len(self.dq)==4:
+                    self.dq.pop()
                 self.number += 1
-                cv2.imwrite('No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg', result_img)
-
+                saved_file = 'No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg'
+                cv2.imwrite(saved_file, result_img)
+                self.put_img_to_labels(self.dq)
                 temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
+                
 
                 #############################################################################
                 # GoogleVisionAPI branch  에서 추가한 내용
@@ -233,14 +269,7 @@ class MainWindow(QWidget):
 
 
 
-                #해당 영역만 사진을 잘라서 한글을 인식함
-                # name_img = img[y2:h, 0:(x1+x2)//2]
-                # is_success, im_buf_arr = cv2.imencode(".jpg",name_img)
-                # byte_im = im_buf_arr.tobytes()
-                # image = vision.Image(content=byte_im)
-                # response = client.document_text_detection(image=image)
-                # docText = response.full_text_annotation.text
-
+                """
                 name_img = img[y2:h, 0:(x1+x2)//2]
                 is_success, im_buf_arr = cv2.imencode(".jpg",name_img)
                 io_buf = io.BytesIO(im_buf_arr)
@@ -248,7 +277,7 @@ class MainWindow(QWidget):
                 image = vision.Image(content=byte_im)
                 response = client.document_text_detection(image=image)
                 docText = response.full_text_annotation.text
-
+                """
 
 
 
@@ -262,7 +291,7 @@ class MainWindow(QWidget):
 
 
 
-
+                """
                 # 한글만 가져오는 코드
                 Final_Text = ""
                 Flag = False
@@ -277,7 +306,7 @@ class MainWindow(QWidget):
                 message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
                 
                 
-
+                """
 
                 # 전달할 메시지 내용 JSON형식으로 저장후 전달
                 # message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
