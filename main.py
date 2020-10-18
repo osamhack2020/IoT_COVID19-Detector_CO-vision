@@ -8,7 +8,14 @@ import os, io
 import json
 import requests
 from google.cloud import vision
+#########################################################################텔레그렘 수정 내용
+import telepot
 
+# bot = co_vision_bot
+token = '1130712531:AAE3W0J9Y3s2opGvE_c8My8e96-vhqlLAGE'
+mc = '1314303321'
+bot = telepot.Bot(token)
+####################################### ##################################
 # 구글 API 설정
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
@@ -128,8 +135,18 @@ while cap.isOpened():
 
             #############################################################################
             # GoogleVisionAPI branch  에서 추가한 내용
+<<<<<<< HEAD
             IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
 
+=======
+            #IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
+            # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
+            # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
+            Name_img = img[y2:h, 0:(x1+x2)/2]
+
+            with io.open(Name_img, 'rb') as image_file:
+                content = image_file.read()
+>>>>>>> c55abbb6349e75fb32470fe631a3977d7dfaa88f
 
 
 
@@ -174,9 +191,19 @@ while cap.isOpened():
             print('한글 -> ' + Final_Text)
 
             #############################################################################
+            message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+            
+            
+            f = open(IMAGE_FILE,'rb')
+            response = bot.sendPhoto(mc, f)
+            response = bot.sendMessage(mc,message_description)
 
             # 전달할 메시지 내용 JSON형식으로 저장후 전달
+<<<<<<< HEAD
             message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+=======
+            # message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+>>>>>>> c55abbb6349e75fb32470fe631a3977d7dfaa88f
             # template = {
             #     "object_type": "feed",
             #     "content": {
@@ -207,6 +234,7 @@ while cap.isOpened():
             #     print('메시지를 성공적으로 보내지 못했습니다. 오류메시지 : ' + str(response.json()))
 
     out.write(result_img)
+    #resized_img = cv2.resize(result_img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
     cv2.imshow('result', result_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
     if cv2.waitKey(1) == ord('q'):  # q누르면 동영상 종료
         break
