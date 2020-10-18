@@ -34,10 +34,10 @@ class Ui_Form(object):
         self.label_2.setScaledContents(False)
         self.label_2.setObjectName("label_2")
         self.verticalLayout.addWidget(self.label_2)
-        self.label_3 = QtWidgets.QLabel(Form)
-        self.label_3.setScaledContents(False)
-        self.label_3.setObjectName("label_3")
-        self.verticalLayout.addWidget(self.label_3)
+        # self.label_3 = QtWidgets.QLabel(Form)
+        # self.label_3.setScaledContents(False)
+        # self.label_3.setObjectName("label_3")
+        # self.verticalLayout.addWidget(self.label_3)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
         self.horizontalLayout.addLayout(self.horizontalLayout_2)
 
@@ -51,7 +51,7 @@ class Ui_Form(object):
         self.thermal_video.setText(_translate("Form", "TextLabel"))
         self.label.setText(_translate("Form", "TextLabel"))
         self.label_2.setText(_translate("Form", "TextLabel"))
-        self.label_3.setText(_translate("Form", "TextLabel"))
+        #self.label_3.setText(_translate("Form", "TextLabel"))
 
 
 if __name__ == "__main__":

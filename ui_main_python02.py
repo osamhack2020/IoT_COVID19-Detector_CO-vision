@@ -156,7 +156,7 @@ class MainWindow(QWidget):
     def put_img_to_labels(self, dq):
         
         image = self.dq[0]        
-        image = cv2.resize(image, dsize=(0, 0), fx=0.1, fy=0.1, interpolation=cv2.INTER_LINEAR)
+        image = cv2.resize(image, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         height, width, channel = image.shape
         step = channel * width
@@ -240,9 +240,9 @@ class MainWindow(QWidget):
                 label = 'No Mask %d%%' % (nomask * 100)
 
             # mask 썼을확률 계산후 그에대한 결과를 보여주는 곳. 해당 얼굴영역보다 이전 인덱스는 이미 계산되어 이미지에 저장되어 있다.
-            cv2.rectangle(result_img, pt1=(x1, y1), pt2=(x2, y2), thickness=2, color=color, lineType=cv2.LINE_AA)
+            cv2.rectangle(result_img, pt1=(x1, y1), pt2=(x2, y2), thickness=7, color=color, lineType=cv2.LINE_AA)
             # 계산된 결과를 현재 돌아가고 있는 얼굴영역 위에 Text를 써줌으로써 표시한다. 마스크 썼을확률은 label에 들어있음.
-            cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, color=color, thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=4, color=color, thickness=6, lineType=cv2.LINE_AA)
 
             # 마스크 안썻을 확률이 일정확률 이상인 경우
             if nomask >= 0.75:
@@ -255,11 +255,11 @@ class MainWindow(QWidget):
                 cv2.imwrite(saved_file, result_img)
                 self.put_img_to_labels(self.dq)
                 temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
-                
+
 
                 #############################################################################
                 # GoogleVisionAPI branch  에서 추가한 내용
-                #IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
+                IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg'
                 # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
                 # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
                 # Name_img = img[y2:h, 0:(x1+x2)/2]
@@ -287,6 +287,52 @@ class MainWindow(QWidget):
                 # image = vision.Image(content=content)
                 # response = client.document_text_detection(image=image)
                 # docText = response.full_text_annotation.text
+
+
+
+
+
+
+
+
+                
+
+
+                with io.open(IMAGE_FILE, 'rb') as image_file:
+                    content = image_file.read()
+
+                image = vision.Image(content=content)
+                response = client.document_text_detection(image=image)
+                Final_Text = "이름 : "
+                for data in response.text_annotations:
+                    xx1 = data.bounding_poly.vertices[0].x - 50 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+                    yy1 = data.bounding_poly.vertices[0].y
+                    xx2 = data.bounding_poly.vertices[2].x
+                    yy2 = data.bounding_poly.vertices[2].y
+                    if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2:
+                        continue
+                    for x in data.description:
+                        if ord('가') <= ord(x) <= ord('힣'):
+                            cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
+                            Final_Text += x
+
+                print('한글 -> ' + Final_Text)
+                self.ui.label_2.setText(Final_Text)
+
+                    # cv2.rectangle(img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=2, color=color, lineType=cv2.LINE_AA)
+                    # img_resize = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
+                    # cv2.imshow('fram', img_resize)
+                    # cv2.waitKey(0)
+
+
+
+
+
+
+
+
+
+
 
 
 
