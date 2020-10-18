@@ -135,10 +135,6 @@ while cap.isOpened():
 
             #############################################################################
             # GoogleVisionAPI branch  에서 추가한 내용
-<<<<<<< HEAD
-            IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
-
-=======
             #IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
             # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
             # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
@@ -146,7 +142,6 @@ while cap.isOpened():
 
             with io.open(Name_img, 'rb') as image_file:
                 content = image_file.read()
->>>>>>> c55abbb6349e75fb32470fe631a3977d7dfaa88f
 
 
 
@@ -199,11 +194,7 @@ while cap.isOpened():
             response = bot.sendMessage(mc,message_description)
 
             # 전달할 메시지 내용 JSON형식으로 저장후 전달
-<<<<<<< HEAD
-            message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
-=======
             # message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
->>>>>>> c55abbb6349e75fb32470fe631a3977d7dfaa88f
             # template = {
             #     "object_type": "feed",
             #     "content": {
