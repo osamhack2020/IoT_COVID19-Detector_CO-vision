@@ -68,7 +68,6 @@ while cap.isOpened():
         break
     # Optional step 영상이 돌려져 있으면 돌리기
     img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-
     h, w = img.shape[:2]
 
     blob = cv2.dnn.blobFromImage(img, scalefactor=1., size=(300, 300), mean=(104., 177., 123.))
