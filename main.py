@@ -134,7 +134,7 @@ while cap.isOpened():
 
             #############################################################################
             # GoogleVisionAPI branch  에서 추가한 내용
-            #IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
+            IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
             # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
             # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
             #Name_img = img[y2:h, 0:(x1+x2)/2]
@@ -152,16 +152,34 @@ while cap.isOpened():
             # response = client.document_text_detection(image=image)
             # docText = response.full_text_annotation.text
 
-            name_img = img[y2:h, 0:(x1+x2)//2]
-            is_success, im_buf_arr = cv2.imencode(".jpg",name_img)
-            io_buf = io.BytesIO(im_buf_arr)
-            byte_im = io_buf.getvalue()
-            image = vision.Image(content=byte_im)
+            # name_img = img[y2:h, 0:(x1+x2)//2]
+            # is_success, im_buf_arr = cv2.imencode(".jpg",name_img)
+            # io_buf = io.BytesIO(im_buf_arr)
+            # byte_im = io_buf.getvalue()
+            # image = vision.Image(content=byte_im)
+            # response = client.document_text_detection(image=image)
+            # docText = response.full_text_annotation.text
+
+
+            with io.open(IMAGE_FILE, 'rb') as image_file:
+                content = image_file.read()
+
+            image = vision.Image(content=content)
             response = client.document_text_detection(image=image)
-            docText = response.full_text_annotation.text
+            Final_Text = ""
+            for data in response.text_annotations:
+                xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+                yy1 = data.bounding_poly.vertices[0].y
+                xx2 = data.bounding_poly.vertices[2].x
+                yy2 = data.bounding_poly.vertices[2].y + 20
+                if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2:
+                    continue
+                for x in data.description:
+                    if ord('가') <= ord(x) <= ord('힣'):
+                        cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
+                        Final_Text += x
 
-
-
+            print('한글 -> ' + Final_Text)
 
             # with io.open(IMAGE_FILE, 'rb') as image_file:
             #     content = image_file.read()
@@ -174,15 +192,15 @@ while cap.isOpened():
 
 
 
-            # 한글만 가져오는 코드
-            Final_Text = ""
-            Flag = False
-            for x in docText:
-                if ord('가') <= ord(x) <= ord('힣'):
-                    Flag = True
-                    Final_Text += x
+            # # 한글만 가져오는 코드
+            # Final_Text = ""
+            # Flag = False
+            # for x in docText:
+            #     if ord('가') <= ord(x) <= ord('힣'):
+            #         Flag = True
+            #         Final_Text += x
 
-            print('한글 -> ' + Final_Text)
+            # print('한글 -> ' + Final_Text)
 
             #############################################################################
             message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
@@ -224,8 +242,8 @@ while cap.isOpened():
             #     print('메시지를 성공적으로 보내지 못했습니다. 오류메시지 : ' + str(response.json()))
 
     out.write(result_img)
-    #resized_img = cv2.resize(result_img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
-    cv2.imshow('result', result_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
+    resized_img = cv2.resize(result_img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
+    cv2.imshow('result', resized_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
     if cv2.waitKey(1) == ord('q'):  # q누르면 동영상 종료
         break
 
