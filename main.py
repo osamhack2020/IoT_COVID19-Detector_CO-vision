@@ -137,10 +137,10 @@ while cap.isOpened():
             #IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
             # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
             # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
-            Name_img = img[y2:h, 0:(x1+x2)/2]
+            #Name_img = img[y2:h, 0:(x1+x2)/2]
 
-            with io.open(Name_img, 'rb') as image_file:
-                content = image_file.read()
+            # with io.open(Name_img, 'rb') as image_file:
+            #     content = image_file.read()
 
 
 
@@ -188,9 +188,9 @@ while cap.isOpened():
             message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
             
             
-            f = open(IMAGE_FILE,'rb')
-            response = bot.sendPhoto(mc, f)
-            response = bot.sendMessage(mc,message_description)
+            # f = open(IMAGE_FILE,'rb')
+            # response = bot.sendPhoto(mc, f)
+            # response = bot.sendMessage(mc,message_description)
 
             # 전달할 메시지 내용 JSON형식으로 저장후 전달
             # message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
