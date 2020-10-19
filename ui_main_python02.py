@@ -437,10 +437,10 @@ class MainWindow(QWidget):
 
 
 
-        # telegram 사진 문자 보내는 코드
-        f = open(IMAGE_FILE,'rb')
-        response = bot.sendPhoto(mc, f)
-        response = bot.sendMessage(mc,message_description)
+        # # telegram 사진 문자 보내는 코드
+        # f = open(IMAGE_FILE,'rb')
+        # response = bot.sendPhoto(mc, f)
+        # response = bot.sendMessage(mc,message_description)
 
 
         #
