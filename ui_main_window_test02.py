@@ -34,10 +34,10 @@ class Ui_Form(object):
         self.label_2.setScaledContents(False)
         self.label_2.setObjectName("label_2")
         self.verticalLayout.addWidget(self.label_2)
-        # self.label_3 = QtWidgets.QLabel(Form)
-        # self.label_3.setScaledContents(False)
-        # self.label_3.setObjectName("label_3")
-        # self.verticalLayout.addWidget(self.label_3)
+        self.label_3 = QtWidgets.QLabel(Form)
+        self.label_3.setScaledContents(False)
+        self.label_3.setObjectName("label_3")
+        self.verticalLayout.addWidget(self.label_3)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
         self.horizontalLayout.addLayout(self.horizontalLayout_2)
 
@@ -47,11 +47,11 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Cam view"))
-        self.main_video.setText(_translate("Form", "TextLabel"))
-        self.thermal_video.setText(_translate("Form", "TextLabel"))
-        self.label.setText(_translate("Form", "TextLabel"))
-        self.label_2.setText(_translate("Form", "TextLabel"))
-        #self.label_3.setText(_translate("Form", "TextLabel"))
+        self.main_video.setText(_translate("Form", "Main_Cam"))
+        self.thermal_video.setText(_translate("Form", "Thermal_Cam"))
+        self.label.setText(_translate("Form", "Face_Cam"))
+        self.label_2.setText(_translate("Form", "Log"))
+        self.label_3.setText(_translate("Form", "LOGO"))
 
 
 if __name__ == "__main__":

@@ -151,8 +151,19 @@ class MainWindow(QWidget):
         self.capthermal = cv2.VideoCapture('imgs/junha_video.mp4')
         self.number = 0
         self.dq = deque()
+        self.textdq = deque([])
         # start timer
         self.timer.start(20)
+        image = cv2.imread('tmpLogo.png')
+        image = cv2.resize(image, dsize=(0, 0), fx=1.4, fy=1.2, interpolation=cv2.INTER_LINEAR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # get image infos
+        height, width, channel = image.shape
+        step = channel * width
+        # create QImage from image
+        qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
+        # show image in main_video
+        self.ui.label_3.setPixmap(QPixmap.fromImage(qImg))
     def put_img_to_labels(self, dq):
         
         image = self.dq[0]        
@@ -185,6 +196,16 @@ class MainWindow(QWidget):
         #     qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
         #     self.ui.label_3.setPixmap(QPixmap.fromImage(qImg))
         
+    def label_2_text(self, textdq):
+        TEXT = ""
+        if len(self.textdq) > 10:
+            textdq.pop()
+        for text in textdq:
+            TEXT += text + '\n'
+        self.ui.label_2.setText(TEXT)
+
+
+
     def sound(self):
         pass
 
@@ -303,12 +324,12 @@ class MainWindow(QWidget):
 
                 image = vision.Image(content=content)
                 response = client.document_text_detection(image=image)
-                Final_Text = "이름 : "
+                Final_Text = ""
                 for data in response.text_annotations:
-                    xx1 = data.bounding_poly.vertices[0].x - 50 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+                    xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
                     yy1 = data.bounding_poly.vertices[0].y
                     xx2 = data.bounding_poly.vertices[2].x
-                    yy2 = data.bounding_poly.vertices[2].y
+                    yy2 = data.bounding_poly.vertices[2].y + 20
                     if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2:
                         continue
                     for x in data.description:
@@ -317,7 +338,7 @@ class MainWindow(QWidget):
                             Final_Text += x
 
                 print('한글 -> ' + Final_Text)
-                self.ui.label_2.setText(Final_Text)
+                #self.ui.label_2.setText(Final_Text)
 
                     # cv2.rectangle(img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=2, color=color, lineType=cv2.LINE_AA)
                     # img_resize = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
@@ -355,7 +376,7 @@ class MainWindow(QWidget):
                 """
 
                 # 전달할 메시지 내용 JSON형식으로 저장후 전달
-                # message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+                message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
                 # template = {
                 #     "object_type": "feed",
                 #     "content": {
@@ -410,8 +431,12 @@ class MainWindow(QWidget):
 
 
 
-
-        
+        #
+        message_description2 = '이름 :' + Final_Text + ' 해당인원 온도 :' + str(temperature) + ' 마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+        self.textdq.appendleft(message_description2)
+    
+        self.label_2_text(self.textdq)
+        #self.ui.label_2.setText(self.textdq[0])
         #image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         image = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
         # convert image to RGB format
