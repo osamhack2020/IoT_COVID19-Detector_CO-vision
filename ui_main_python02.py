@@ -28,6 +28,7 @@ from ui_main_window_test02 import *
 
 from collections import deque
 
+import time
 
 
 
@@ -145,6 +146,7 @@ class MainWindow(QWidget):
         self.timer = QTimer()
         # set timer timeout callback function
         self.timer.timeout.connect(self.viewCam)
+        #
         self.timer.timeout.connect(self.viewThermalCam)
         # self.cap =  cv2.VideoCapture(0) 으로 하면 웹캠 실시간으로 나옴
         self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
@@ -164,6 +166,7 @@ class MainWindow(QWidget):
         qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
         # show image in main_video
         self.ui.label_3.setPixmap(QPixmap.fromImage(qImg))
+        self.prevTime = 0
     def put_img_to_labels(self, dq):
         
         image = self.dq[0]        
@@ -209,12 +212,19 @@ class MainWindow(QWidget):
     def sound(self):
         pass
 
-
     # view camera
     def viewCam(self):
-        # read image in BGR format
         ret, img = self.cap.read()
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+        # 프레임
+        curTime = time.time()
+        sec = curTime - self.prevTime
+        self.prevTime = curTime
+        fps = 1/(sec)
+        FPS = "FPS : %0.1f" % fps
+        cv2.putText(img, FPS, (0, 200), cv2.FONT_HERSHEY_SIMPLEX, 8, (0, 255, 0), thickness=5)
+        # read image in BGR format
+        
 
         h, w = img.shape[:2]
 
