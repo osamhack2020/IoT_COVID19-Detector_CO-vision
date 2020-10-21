@@ -83,6 +83,14 @@ class MainWindow(QWidget):
         for text in textdq:
             TEXT += text + '\n'
         self.ui.label_2.setText(TEXT)
+    def put_img_to_labels(self, face):        
+        image = face       
+        image = cv2.resize(image, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        height, width, channel = image.shape
+        step = channel * width
+        qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
+        self.ui.label.setPixmap(QPixmap.fromImage(qImg))
     # view camera
     def viewCam(self): # 실시간 영상 보여줌
         ret, img = self.cap.read()
@@ -155,7 +163,7 @@ class MainWindow(QWidget):
                 self.number += 1
                 saved_file = 'No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg'
                 cv2.imwrite(saved_file, result_img)
-                #self.put_img_to_labels(self.dq)
+                self.put_img_to_labels(face)
                 temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
 
 
@@ -166,27 +174,27 @@ class MainWindow(QWidget):
 
                 #########################이름표 검출 코드####################################################
 
-                IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg'
-                with io.open(IMAGE_FILE, 'rb') as image_file:
-                    content = image_file.read()
-                image = vision.Image(content=content)
-                response = client.document_text_detection(image=image)
+                # IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg'
+                # with io.open(IMAGE_FILE, 'rb') as image_file:
+                #     content = image_file.read()
+                # image = vision.Image(content=content)
+                # response = client.document_text_detection(image=image)
                 Final_Text = ""
-                # response 에는 글자 좌표값이 있음. 밑에 코드는 얼굴절반보다 왼쪽 아래에 있는 글씨중에 한글만 가져옴.
-                # 따라서 마스크를 안쓰는 얼굴이 검출 안되면 글자도 검출 안함.
-                for data in response.text_annotations:
-                    xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
-                    yy1 = data.bounding_poly.vertices[0].y
-                    xx2 = data.bounding_poly.vertices[2].x
-                    yy2 = data.bounding_poly.vertices[2].y + 20
-                    if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2 or yy1 < y1 or yy2 < y1:
-                        continue
-                    for x in data.description:
-                        if ord('가') <= ord(x) <= ord('힣'):
-                            cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
-                            Final_Text += x
+                # # response 에는 글자 좌표값이 있음. 밑에 코드는 얼굴절반보다 왼쪽 아래에 있는 글씨중에 한글만 가져옴.
+                # # 따라서 마스크를 안쓰는 얼굴이 검출 안되면 글자도 검출 안함.
+                # for data in response.text_annotations:
+                #     xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+                #     yy1 = data.bounding_poly.vertices[0].y
+                #     xx2 = data.bounding_poly.vertices[2].x
+                #     yy2 = data.bounding_poly.vertices[2].y + 20
+                #     if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2 or yy1 < y1 or yy2 < y1:
+                #         continue
+                #     for x in data.description:
+                #         if ord('가') <= ord(x) <= ord('힣'):
+                #             cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
+                #             Final_Text += x
 
-                print('한글 -> ' + Final_Text)
+                # print('한글 -> ' + Final_Text)
 
                 #############################################################################
 
@@ -262,10 +270,23 @@ class MainWindow(QWidget):
 
 
         # message_description2 는 로그 보여주는 용도 엔터(\n)를 없앴음.
-        message_description2 = '이름 :' + Final_Text + ' 해당인원 온도 :' + str(temperature) + ' 마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
-        self.textdq.appendleft(message_description2)
+
+
+
+        #################################################log 메세지 알려주는곳
+        # message_description2 = '이름 :' + Final_Text + ' 해당인원 온도 :' + str(temperature) + ' 마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+        # self.textdq.appendleft(message_description2)
+    
+        # self.label_2_text(self.textdq)
+
+        self.textdq.appendleft(message_description)
     
         self.label_2_text(self.textdq)
+        #################################################
+
+
+
+
         #self.ui.label_2.setText(self.textdq[0])
         #image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         image = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
