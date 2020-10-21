@@ -61,8 +61,8 @@ class MainWindow(QWidget):
         super().__init__()
         self.ui = Ui_Form()
         self.ui.setupUi(self)
-        self.textdq = deque([])
-        self.prevTime = 0
+        self.textdq = deque([]) # 로그 보여주는 용도
+        self.prevTime = 0 # 프레임 보여주는 용도
         self.number = 0
 
         # create a timer
@@ -76,7 +76,7 @@ class MainWindow(QWidget):
         self.timer.start(20)
 
 
-    def label_2_text(self, textdq):
+    def label_2_text(self, textdq): # 로그 보여주는 곳
         TEXT = ""
         if len(self.textdq) > 10:
             textdq.pop()
@@ -84,10 +84,10 @@ class MainWindow(QWidget):
             TEXT += text + '\n'
         self.ui.label_2.setText(TEXT)
     # view camera
-    def viewCam(self):
+    def viewCam(self): # 실시간 영상 보여줌
         ret, img = self.cap.read()
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-        # 프레임
+        # 프레임 보여줌
         curTime = time.time()
         sec = curTime - self.prevTime
         self.prevTime = curTime
@@ -159,49 +159,27 @@ class MainWindow(QWidget):
                 temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
 
 
-                #############################################################################
-                # GoogleVisionAPI branch  에서 추가한 내용
+
+
+
+
+
+                #########################이름표 검출 코드####################################################
+
                 IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg'
-                # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
-                # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
-                # Name_img = img[y2:h, 0:(x1+x2)/2]
-
-                # with io.open(Name_img, 'rb') as image_file:
-                #     content = image_file.read()
-
-
-
-                """
-                name_img = img[y2:h, 0:(x1+x2)//2]
-                is_success, im_buf_arr = cv2.imencode(".jpg",name_img)
-                io_buf = io.BytesIO(im_buf_arr)
-                byte_im = io_buf.getvalue()
-                image = vision.Image(content=byte_im)
-                response = client.document_text_detection(image=image)
-                docText = response.full_text_annotation.text
-                """
-
-
-
-                # with io.open(IMAGE_FILE, 'rb') as image_file:
-                #     content = image_file.read()
-
-                # image = vision.Image(content=content)
-                # response = client.document_text_detection(image=image)
-                # docText = response.full_text_annotation.text
-
                 with io.open(IMAGE_FILE, 'rb') as image_file:
                     content = image_file.read()
-
                 image = vision.Image(content=content)
                 response = client.document_text_detection(image=image)
                 Final_Text = ""
+                # response 에는 글자 좌표값이 있음. 밑에 코드는 얼굴절반보다 왼쪽 아래에 있는 글씨중에 한글만 가져옴.
+                # 따라서 마스크를 안쓰는 얼굴이 검출 안되면 글자도 검출 안함.
                 for data in response.text_annotations:
                     xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
                     yy1 = data.bounding_poly.vertices[0].y
                     xx2 = data.bounding_poly.vertices[2].x
                     yy2 = data.bounding_poly.vertices[2].y + 20
-                    if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2:
+                    if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2 or yy1 < y1 or yy2 < y1:
                         continue
                     for x in data.description:
                         if ord('가') <= ord(x) <= ord('힣'):
@@ -209,42 +187,21 @@ class MainWindow(QWidget):
                             Final_Text += x
 
                 #print('한글 -> ' + Final_Text)
-                #self.ui.label_2.setText(Final_Text)
-
-                    # cv2.rectangle(img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=2, color=color, lineType=cv2.LINE_AA)
-                    # img_resize = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
-                    # cv2.imshow('fram', img_resize)
-                    # cv2.waitKey(0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                """
-                # 한글만 가져오는 코드
-                Final_Text = ""
-                Flag = False
-                for x in docText:
-                    if ord('가') <= ord(x) <= ord('힣'):
-                        Flag = True
-                        Final_Text += x
-
-                print('한글 -> ' + Final_Text)
 
                 #############################################################################
-                message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
-                
-                
-                """
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 # 전달할 메시지 내용 JSON형식으로 저장후 전달
                 message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
@@ -304,7 +261,7 @@ class MainWindow(QWidget):
         # response = bot.sendMessage(mc,message_description)
 
 
-        #
+        # message_description2 는 로그 보여주는 용도 엔터(\n)를 없앴음.
         message_description2 = '이름 :' + Final_Text + ' 해당인원 온도 :' + str(temperature) + ' 마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
         self.textdq.appendleft(message_description2)
     
