@@ -147,11 +147,11 @@ class MainWindow(QWidget):
         # set timer timeout callback function
         self.timer.timeout.connect(self.viewCam)
         #
-        # self.timer.timeout.connect(self.viewThermalCam)
+        self.timer.timeout.connect(self.viewThermalCam)
         # self.cap =  cv2.VideoCapture(0) 으로 하면 웹캠 실시간으로 나옴
         # self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
-        self.cap =  cv2.VideoCapture(0)
-        # self.capthermal = cv2.VideoCapture('imgs/junha_video.mp4')
+        self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
+        self.capthermal = cv2.VideoCapture('imgs/junha_video.mp4')
         self.number = 0
         self.dq = deque()
         self.textdq = deque([])
@@ -174,7 +174,7 @@ class MainWindow(QWidget):
     def put_img_to_labels(self, dq):
         
         image = self.dq[0]        
-        # image = cv2.resize(image, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
+        image = cv2.resize(image, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         height, width, channel = image.shape
         step = channel * width
@@ -219,14 +219,14 @@ class MainWindow(QWidget):
     # view camera
     def viewCam(self):
         ret, img = self.cap.read()
-        # img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+        img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
         # 프레임
         curTime = time.time()
         sec = curTime - self.prevTime
         self.prevTime = curTime
         fps = 1/(sec)
         FPS = "FPS : %0.1f" % fps
-        cv2.putText(img, FPS, (0, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), thickness=1)
+        cv2.putText(img, FPS, (0, 200), cv2.FONT_HERSHEY_SIMPLEX, 8, (0, 255, 0), thickness=5)
         # read image in BGR format
         
 
@@ -260,19 +260,10 @@ class MainWindow(QWidget):
 
             # 마스크를 썼나 안썼나 예측
             # 전처리하는 부분
-            try:
-                face_input = cv2.resize(face, dsize=(224, 224))  # 이미지 크기 변경
-                face_input = cv2.cvtColor(face_input, cv2.COLOR_BGR2RGB)  # 이미지의 컬러시스템 변경
-                face_input = preprocess_input(face_input)  # mobileNetV2에서 하는 preprocessing과 똑같이 하기위해 처리
-                face_input = np.expand_dims(face_input, axis=0)  # 이렇게 하면 shape이 (224,224,3) 으로 나오는데 넣을때는 (1,224,224,3)이 되어야 하므로 차원하나 추가
-            except Exception as e:
-                print('error: ')
-                print(str(e))
-                break
-            # face_input = cv2.resize(face, dsize=(224, 224))  # 이미지 크기 변경
-            # face_input = cv2.cvtColor(face_input, cv2.COLOR_BGR2RGB)  # 이미지의 컬러시스템 변경
-            # face_input = preprocess_input(face_input)  # mobileNetV2에서 하는 preprocessing과 똑같이 하기위해 처리
-            # face_input = np.expand_dims(face_input, axis=0)  # 이렇게 하면 shape이 (224,224,3) 으로 나오는데 넣을때는 (1,224,224,3)이 되어야 하므로 차원하나 추가
+            face_input = cv2.resize(face, dsize=(224, 224))  # 이미지 크기 변경
+            face_input = cv2.cvtColor(face_input, cv2.COLOR_BGR2RGB)  # 이미지의 컬러시스템 변경
+            face_input = preprocess_input(face_input)  # mobileNetV2에서 하는 preprocessing과 똑같이 하기위해 처리
+            face_input = np.expand_dims(face_input, axis=0)  # 이렇게 하면 shape이 (224,224,3) 으로 나오는데 넣을때는 (1,224,224,3)이 되어야 하므로 차원하나 추가
 
             mask, self.nomask = model.predict(face_input).squeeze()  # load해놓은 모델에 predict method를 통해, 마스크 여부 확률을 반환
 
@@ -284,9 +275,9 @@ class MainWindow(QWidget):
                 label = 'No Mask %d%%' % (self.nomask * 100)
 
             # mask 썼을확률 계산후 그에대한 결과를 보여주는 곳. 해당 얼굴영역보다 이전 인덱스는 이미 계산되어 이미지에 저장되어 있다.
-            cv2.rectangle(result_img, pt1=(x1, y1), pt2=(x2, y2), thickness=3, color=color, lineType=cv2.LINE_AA)
+            cv2.rectangle(result_img, pt1=(x1, y1), pt2=(x2, y2), thickness=7, color=color, lineType=cv2.LINE_AA)
             # 계산된 결과를 현재 돌아가고 있는 얼굴영역 위에 Text를 써줌으로써 표시한다. 마스크 썼을확률은 label에 들어있음.
-            cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=2, color=color, thickness=2, lineType=cv2.LINE_AA)
+            cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=4, color=color, thickness=6, lineType=cv2.LINE_AA)
 
             # 마스크 안썻을 확률이 일정확률 이상인 경우
             if self.nomask >= 0.75:
@@ -465,9 +456,9 @@ class MainWindow(QWidget):
 
         #self.ui.label_2.setText(self.textdq[0])
         #image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-        # image = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
+        image = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
         # convert image to RGB format
-        image = cv2.cvtColor(result_img, cv2.COLOR_BGR2RGB)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # get image infos
         height, width, channel = image.shape
         step = channel * width
