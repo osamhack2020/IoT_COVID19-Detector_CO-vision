@@ -25,7 +25,8 @@ class MainWindow(QWidget):
         # set timer timeout callback function
         self.timer.timeout.connect(self.viewCam)
         self.timer.timeout.connect(self.viewThermalCam)
-        self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
+        # self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
+        self.cap =  cv2.VideoCapture(0)
         self.capthermal = cv2.VideoCapture('imgs/junha_video.mp4')
         # start timer
         self.timer.start(20)

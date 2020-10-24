@@ -149,6 +149,7 @@ class MainWindow(QWidget):
         #
         self.timer.timeout.connect(self.viewThermalCam)
         # self.cap =  cv2.VideoCapture(0) 으로 하면 웹캠 실시간으로 나옴
+        # self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
         self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
         self.capthermal = cv2.VideoCapture('imgs/junha_video.mp4')
         self.number = 0
@@ -167,6 +168,9 @@ class MainWindow(QWidget):
         # show image in main_video
         self.ui.label_3.setPixmap(QPixmap.fromImage(qImg))
         self.prevTime = 0
+        self.Final_Text = ""
+        self.temperature = 0
+        self.nomask=0
     def put_img_to_labels(self, dq):
         
         image = self.dq[0]        
@@ -178,26 +182,6 @@ class MainWindow(QWidget):
         self.ui.label.setPixmap(QPixmap.fromImage(qImg))
 
 
-        #label 에 FILE 사진 넣기
-        # if now_number - 1 > 0:
-        #     label_2_num = now_number - 1
-        #     FILE = 'No_Mask_File/' + '0'+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(label_2_num)) + '.jpg'
-        #     image = cv2.imread(FILE)
-        #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        #     height, width, channel = image.shape
-        #     step = channel * width
-        #     qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
-        #     self.ui.label_2.setPixmap(QPixmap.fromImage(qImg))
-        #     #label_2에 사진 넣기
-        # if now_number - 2 > 0:
-        #     label_3_num = now_number - 2
-        #     FILE = 'No_Mask_File/' + '0'+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(label_3_num)) + '.jpg'
-        #     image = cv2.imread(FILE)
-        #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        #     height, width, channel = image.shape
-        #     step = channel * width
-        #     qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
-        #     self.ui.label_3.setPixmap(QPixmap.fromImage(qImg))
         
     def label_2_text(self, textdq):
         TEXT = ""
@@ -208,7 +192,27 @@ class MainWindow(QWidget):
         self.ui.label_2.setText(TEXT)
 
 
+    def find_name_and_display(self, IMAGE_FILE,x1,x2,result_img,color):
+        with io.open(IMAGE_FILE, 'rb') as image_file:
+            content = image_file.read()
 
+        image = vision.Image(content=content)
+        response = client.document_text_detection(image=image)
+        Final_Text = ""
+        for data in response.text_annotations:
+            xx1 = data.bounding_poly.vertices[0].x - 60  # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+            yy1 = data.bounding_poly.vertices[0].y
+            xx2 = data.bounding_poly.vertices[2].x
+            yy2 = data.bounding_poly.vertices[2].y + 20
+            if xx1 > (x1 + x2) // 2 or xx2 > (x1 + x2) // 2:
+                continue
+            for x in data.description:
+                if ord('가') <= ord(x) <= ord('힣'):
+                    cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color,
+                                  lineType=cv2.LINE_AA)
+                    Final_Text += x
+        return Final_Text
+        #print('한글 -> ' + Final_Text)
     def sound(self):
         pass
 
@@ -261,14 +265,14 @@ class MainWindow(QWidget):
             face_input = preprocess_input(face_input)  # mobileNetV2에서 하는 preprocessing과 똑같이 하기위해 처리
             face_input = np.expand_dims(face_input, axis=0)  # 이렇게 하면 shape이 (224,224,3) 으로 나오는데 넣을때는 (1,224,224,3)이 되어야 하므로 차원하나 추가
 
-            mask, nomask = model.predict(face_input).squeeze()  # load해놓은 모델에 predict method를 통해, 마스크 여부 확률을 반환
+            mask, self.nomask = model.predict(face_input).squeeze()  # load해놓은 모델에 predict method를 통해, 마스크 여부 확률을 반환
 
-            if mask > nomask:
+            if mask > self.nomask:
                 color = (0, 255, 0)
                 label = 'Mask %d%%' % (mask * 100)
             else:
                 color = (0, 0, 255)
-                label = 'No Mask %d%%' % (nomask * 100)
+                label = 'No Mask %d%%' % (self.nomask * 100)
 
             # mask 썼을확률 계산후 그에대한 결과를 보여주는 곳. 해당 얼굴영역보다 이전 인덱스는 이미 계산되어 이미지에 저장되어 있다.
             cv2.rectangle(result_img, pt1=(x1, y1), pt2=(x2, y2), thickness=7, color=color, lineType=cv2.LINE_AA)
@@ -276,21 +280,21 @@ class MainWindow(QWidget):
             cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=4, color=color, thickness=6, lineType=cv2.LINE_AA)
 
             # 마스크 안썻을 확률이 일정확률 이상인 경우
-            if nomask >= 0.75:
+            if self.nomask >= 0.75:
                 # 해당 인원 사진 저장
                 self.dq.appendleft(face)
                 if len(self.dq)==4:
                     self.dq.pop()
                 self.number += 1
-                saved_file = 'No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg'
+                saved_file = 'No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + '.jpg'
                 cv2.imwrite(saved_file, result_img)
                 self.put_img_to_labels(self.dq)
-                temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
+                self.temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
 
 
                 #############################################################################
                 # GoogleVisionAPI branch  에서 추가한 내용
-                IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(self.number)) + '.jpg'
+                IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + '.jpg'
                 # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
                 # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
                 # Name_img = img[y2:h, 0:(x1+x2)/2]
@@ -322,32 +326,31 @@ class MainWindow(QWidget):
 
 
 
-
-
-
+                    
+                self.Final_Text = self.find_name_and_display(IMAGE_FILE,x1,x2,result_img,color)
 
                 
 
 
-                with io.open(IMAGE_FILE, 'rb') as image_file:
-                    content = image_file.read()
+                # with io.open(IMAGE_FILE, 'rb') as image_file:
+                #     content = image_file.read()
 
-                image = vision.Image(content=content)
-                response = client.document_text_detection(image=image)
-                Final_Text = ""
-                for data in response.text_annotations:
-                    xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
-                    yy1 = data.bounding_poly.vertices[0].y
-                    xx2 = data.bounding_poly.vertices[2].x
-                    yy2 = data.bounding_poly.vertices[2].y + 20
-                    if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2:
-                        continue
-                    for x in data.description:
-                        if ord('가') <= ord(x) <= ord('힣'):
-                            cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
-                            Final_Text += x
+                # image = vision.Image(content=content)
+                # response = client.document_text_detection(image=image)
+                # self.Final_Text = ""
+                # for data in response.text_annotations:
+                #     xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+                #     yy1 = data.bounding_poly.vertices[0].y
+                #     xx2 = data.bounding_poly.vertices[2].x
+                #     yy2 = data.bounding_poly.vertices[2].y + 20
+                #     if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2:
+                #         continue
+                #     for x in data.description:
+                #         if ord('가') <= ord(x) <= ord('힣'):
+                #             cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
+                #             self.Final_Text += x
 
-                print('한글 -> ' + Final_Text)
+                # print('한글 -> ' + self.Final_Text)
                 #self.ui.label_2.setText(Final_Text)
 
                     # cv2.rectangle(img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=2, color=color, lineType=cv2.LINE_AA)
@@ -386,7 +389,7 @@ class MainWindow(QWidget):
                 """
 
                 # 전달할 메시지 내용 JSON형식으로 저장후 전달
-                message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+                message_description = '이름 :' + self.Final_Text + '\n해당인원 온도 :' + str(self.temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (self.nomask * 100))
                 # template = {
                 #     "object_type": "feed",
                 #     "content": {
@@ -444,10 +447,13 @@ class MainWindow(QWidget):
 
 
         #
-        message_description2 = '이름 :' + Final_Text + ' 해당인원 온도 :' + str(temperature) + ' 마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+        message_description2 = '이름 :' + self.Final_Text + ' 해당인원 온도 :' + str(self.temperature) + ' 마스크 미착용 확률 : ' + str('%d%%' % (self.nomask * 100))
         self.textdq.appendleft(message_description2)
     
         self.label_2_text(self.textdq)
+
+        
+
         #self.ui.label_2.setText(self.textdq[0])
         #image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         image = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
