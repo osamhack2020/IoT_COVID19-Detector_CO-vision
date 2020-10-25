@@ -51,7 +51,9 @@ $ pip install telepot
 
 ## 프로젝트 사용법 (Getting Started)
 **마크다운 문법을 이용하여 자유롭게 기재**
-### Training 구조
+### Mask Training
+
+#### 구조
 ```bash
 ├── dataset
 │   ├── with_mask [690 entries]
