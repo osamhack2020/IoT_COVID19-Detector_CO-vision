@@ -44,8 +44,9 @@
 ## 설치 안내 (Installation Process)
 ```bash
 $ git clone git주소
-$ yarn or npm install
-$ yarn start or npm run start
+$ pip install opencv-python
+$ pip install google-cloud-vision
+$ pip install telepot
 ```
 
 ## 프로젝트 사용법 (Getting Started)
