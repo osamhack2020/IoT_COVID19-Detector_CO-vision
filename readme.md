@@ -29,13 +29,13 @@
  - python
  - opencv
  - [MobileNet V2](https://arxiv.org/abs/1801.04381)
- - Raspberry Pi
  - Google-vision API
  - telepot (tellegram)
  - nodejs, php, java 등 서버 언어 버전 
  - express, laravel, sptring boot 등 사용한 프레임워크 
  - DB 등 사용한 다른 프로그램 
- 
+### embedded devices
+ - Raspberry Pi or NVIDIA Jetson Nano
 ### front-end
  -  react.js, vue.js 등 사용한 front-end 프레임워크 
  -  UI framework
