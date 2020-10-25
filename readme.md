@@ -2,15 +2,7 @@
 
 > [2020 군장병 공개SW 온라인 해커톤](https://osam.kr/main/page.jsp?pid=offline.offline19)
 
-아래의 **샘플 양식은 필수**입니다.
-설명이 부족하거나 추가하고싶은 부분이 있으면 개발자님이 추가해서 작성해주세요!
-동영상, 이미지, 텍스트 전부 자유입니다.
-
-[https://github.com/osam2019](https://github.com/osam2019)
-**2019프로젝트, readme.md를 참고하여 개발자님의 새로운 프로젝트를 만들어주세요!**
-
-# Smaple Logo
-[추가 예정]
+[로고 추가 예정]
                                                                             
 ## 프로젝트 소개
 ### Co-Vision
