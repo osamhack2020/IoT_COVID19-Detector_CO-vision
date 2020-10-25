@@ -2,6 +2,7 @@
 
 > [2020 군장병 공개SW 온라인 해커톤](https://osam.kr/main/page.jsp?pid=offline.offline19)
 
+![CO-vision_LOGO](https://user-images.githubusercontent.com/41141851/97099932-c0968d00-16d1-11eb-96b0-1afd2c0c455f.PNG)
                                                                             
 ## 프로젝트 소개
 ### Co-Vision
