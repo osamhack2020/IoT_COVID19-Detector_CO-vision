@@ -51,7 +51,23 @@ $ pip install telepot
 
 ## 프로젝트 사용법 (Getting Started)
 **마크다운 문법을 이용하여 자유롭게 기재**
-
+```bash
+├── dataset
+│   ├── with_mask [690 entries]
+│   └── without_mask [686 entries]
+├── examples
+│   ├── example_01.png
+│   ├── example_02.png
+│   └── example_03.png
+├── face_detector
+│   ├── deploy.prototxt
+│   └── res10_300x300_ssd_iter_140000.caffemodel
+├── detect_mask_image.py
+├── detect_mask_video.py
+├── mask_detector.model
+├── plot.png
+└── train_mask_detector.py
+```
 잘 모를 경우
 구글 검색 - 마크다운 문법
 [https://post.naver.com/viewer/postView.nhn?volumeNo=24627214&memberNo=42458017](https://post.naver.com/viewer/postView.nhn?volumeNo=24627214&memberNo=42458017)
