@@ -13,7 +13,7 @@
 ## 팀소개 및 프로잭트 설명 동영상
 
 ### 팀 구성원 (team member)
-- 조동현 Donghyeon Cho (hyeon9698@naver.com), Github Id: hyeon9698
+- 조동현 Donghyeon Cho (hyeon9698@naver.com), Github Id: [hyeon9698] (https://github.com/hyeon9698)
 - 허동준 
 
 ## 기능 설계
