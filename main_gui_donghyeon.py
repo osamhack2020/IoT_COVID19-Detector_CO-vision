@@ -147,11 +147,11 @@ class MainWindow(QWidget):
         # set timer timeout callback function
         self.timer.timeout.connect(self.viewCam)
         #
-        self.timer.timeout.connect(self.viewThermalCam)
+        # self.timer.timeout.connect(self.viewThermalCam)
         # self.cap =  cv2.VideoCapture(0) 으로 하면 웹캠 실시간으로 나옴
         # self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
         self.cap =  cv2.VideoCapture('imgs/donghyeon_video.mp4')
-        self.capthermal = cv2.VideoCapture('imgs/donghyeon_video.mp4')
+        # self.capthermal = cv2.VideoCapture('imgs/donghyeon_video.mp4')
         self.number = 0
         self.dq = deque()
         self.textdq = deque([])

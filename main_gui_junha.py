@@ -147,11 +147,11 @@ class MainWindow(QWidget):
         # set timer timeout callback function
         self.timer.timeout.connect(self.viewCam)
         #
-        self.timer.timeout.connect(self.viewThermalCam)
+        # self.timer.timeout.connect(self.viewThermalCam)
         # self.cap =  cv2.VideoCapture(0) 으로 하면 웹캠 실시간으로 나옴
         # self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
         self.cap =  cv2.VideoCapture('imgs/junha_video.mp4')
-        self.capthermal = cv2.VideoCapture('imgs/junha_video.mp4')
+        # self.capthermal = cv2.VideoCapture('imgs/junha_video.mp4')
         self.number = 0
         self.dq = deque()
         self.textdq = deque([])
@@ -221,12 +221,12 @@ class MainWindow(QWidget):
         ret, img = self.cap.read()
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
         # 프레임
-        curTime = time.time()
-        sec = curTime - self.prevTime
-        self.prevTime = curTime
-        fps = 1/(sec)
-        FPS = "FPS : %0.1f" % fps
-        cv2.putText(img, FPS, (0, 200), cv2.FONT_HERSHEY_SIMPLEX, 8, (0, 255, 0), thickness=5)
+        # curTime = time.time()
+        # sec = curTime - self.prevTime
+        # self.prevTime = curTime
+        # fps = 1/(sec)
+        # FPS = "FPS : %0.1f" % fps
+        # cv2.putText(img, FPS, (0, 200), cv2.FONT_HERSHEY_SIMPLEX, 8, (0, 255, 0), thickness=5)
         # read image in BGR format
         
 
