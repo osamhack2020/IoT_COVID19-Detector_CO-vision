@@ -1,5 +1,5 @@
 # Table of contents
 
-* [Initial page](README.md)
+* [Co-Vision](README.md)
 * [Getting Started](untitled.md)
 
