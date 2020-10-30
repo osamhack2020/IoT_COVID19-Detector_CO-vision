@@ -8,7 +8,10 @@
 
 * [프로젝트 개요](undefined/undefined/README.md)
   * [프로젝트 개발 배경](undefined/undefined/undefined.md)
-* [프로젝트 설계](undefined/undefined-1.md)
+* [프로젝트 설계](undefined/undefined-1/README.md)
+  * [목표 설계](undefined/undefined-1/undefined.md)
+  * [목표치 설정 및 분류](undefined/undefined-1/undefined-1.md)
+  * [Diagram](undefined/undefined-1/diagram.md)
 
 ## Development Process
 
@@ -20,9 +23,19 @@
 
 ## How to Use
 
-* [Untitled](how-to-use/untitled.md)
+## expected result
+
+* [USER](expected-result/user.md)
+* [MANAGER](expected-result/manager.md)
+* [ADVANCED](expected-result/advanced.md)
 
 ## License
 
-* [Untitled](license/untitled.md)
+* [Untitled](license/untitled/README.md)
+  * [Untitled](license/untitled/untitled.md)
+
+## technology Stack
+
+* [Technology Stack](technology-stack/technology-stack.md)
+* [OpenSource](technology-stack/opensource.md)
 
