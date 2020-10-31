@@ -5,8 +5,8 @@
 
 **Co-Vision Project**는 감염성 질병을 적극적으로 차단하고 마스크 착용에 대한 인식을 고취시키고자 하는 프로젝트입니다.
 
-프로젝트에 관한 자세한 내용은 아래 Gitbook에서 확인 가능합니다.
 ## Manual
+프로젝트에 관한 자세한 내용은 아래 Gitbook에서 확인 가능합니다.
 <p align="center">
 <a href="https://co-vision.gitbook.io/co-vision-1//">
 <img src="https://img.shields.io/badge/GitBook-project_doc-blue?&style=for-the-badge&logo=github">
@@ -21,7 +21,6 @@
 	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/osamhack2020/IoT_COVID19-Detector_CO-vision"></a>
 </p>
 <br><br><br>
-
 
 ## License
 라이센스의 구체적인 내용은 현 저장소의 LICENSE 파일 및 GitBook의 <a href="https://co-vision.gitbook.io/co-vision-1/license/">LICENSE 페이지</a>를 참조.
