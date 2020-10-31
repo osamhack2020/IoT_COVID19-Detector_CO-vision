@@ -1,107 +1,47 @@
-# Co-Vision
-
-> [2020 군장병 공개SW 온라인 해커톤](https://osam.kr/main/page.jsp?pid=offline.offline19)
-
+# Co-Vision : COVID-19 Detector
 ![CO-vision\_LOGO](https://user-images.githubusercontent.com/41141851/97099932-c0968d00-16d1-11eb-96b0-1afd2c0c455f.PNG)
 
-### 프로젝트 소개
+[2020 군장병 공개SW 온라인 해커톤](https://osam.kr/main/page.jsp?pid=offline.offline19)
 
-#### Co-Vision
+**Co-Vision Project**는 감염성 질병을 적극적으로 차단하고 마스크 착용에 대한 인식을 고취시키고자 하는 프로젝트입니다.
 
-코로나를 물리치자 \[추가 예정2\]
+프로젝트에 관한 자세한 내용은 아래 Gitbook에서 확인 가능합니다.
+<p align="center">
+<a href="https://co-vision.gitbook.io/co-vision-1//">
+<img src="https://img.shields.io/badge/GitBook-project_doc-blue?&style=for-the-badge&logo=github">
+</a>
+</p>
 
-### 팀소개
+<p align="center">
+	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/search?l=TSX&type=code"><img alt="GitHub language count" src="https://img.shields.io/github/languages/count/osamhack2020/IoT_COVID19-Detector_CO-vision"></a>
+	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/osamhack2020/IoT_COVID19-Detector_CO-vision?color=success"></a>
+	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/osamhack2020/IoT_COVID19-Detector_CO-vision"></a>
+	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/network"><img alt="GitHub forks" src="https://img.shields.io/github/forks/osamhack2020/IoT_COVID19-Detector_CO-vision"></a>
+	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/osamhack2020/IoT_COVID19-Detector_CO-vision"></a>
+</p>
+<br><br><br>
 
-#### 팀 구성원
+# 팀 소개
 
-* 조동현 Donghyeon Cho \(hyeon9698@naver.com\), Github Id: [hyeon9698](https://github.com/hyeon9698)
-* 허동준 
+# 프로젝트 개요
+## Co-Vision Project란
+Co-Vision Project란, 현재 전 세계를 강타하고 있는 코로나19의 위협에 대응하여 주기적인 체온체크, 올바른 마스크 착용 등의 자세를 이어가고 있는 상황에서 이를 극복하고 코로나19에서 더 나아가 감염성 질병에 대한 대처를 효과적으로 돕기위한 프로젝트 입니다.
 
-  **프로젝트 설명**
+Co-Vision Project는 단순히 체온을 체크하고 마스크 미착용을 식별해내는 것에서 나아가,  군 과학화출입통제체계의 하나로 일원화하여 감염성 질병등으로 인한 군의 전력 손실을 최소화 하는것을 목표로 하고 있습니다.
 
-  **프로젝트 배경**
+또한 현재 단순히 체온체크, 마스크 착용 등을 단순히 강조하는 실태에서 발전하여 각 부대별 실태를 수치적으로 파악하고자 하는 프로젝트 입니다.
 
-  **기능 설계**
+# 목표 설계
+1. 마스크 미착용자에 대한 실시간 검출
+2. 수동으로 이루어 지던 체온체크를 열화상 카메라를 이용해 고열자 즉각 식별
+3. 마스크 미착용자 및 고열 환자 식별 시, 즉시 신원 확인
+4. 식별된 내용을 해부대 당직 계통에 즉각 전파
 
-  * 발사믹, 카카오 오븐 등 본인이 편한 목업 프레임워크를 이용하여 제작 후 링크 
-  * 수기로 작성시 찍어서 올려주세요
+# How to Build / How to Use
+> Gitbook에서 확인 가능합니다
 
-### 컴퓨터 구성 / 필수 조건 안내 \(Prerequisites\)
-
-* ECMAScript 6 지원 브라우저 사용
-* 권장: Google Chrome 버젼 77 이상
-
-### 기술 스택 \(Technique Used\) \(예시\)
-
-#### Server\(back-end\)
-
-* Keras/Tensorflow
-* python
-* opencv
-* [MobileNet V2](https://arxiv.org/abs/1801.04381)
-* Google-vision API
-* telepot \(tellegram\)
-* nodejs, php, java 등 서버 언어 버전 
-* express, laravel, sptring boot 등 사용한 프레임워크 
-* DB 등 사용한 다른 프로그램 
-
-  **embedded devices**
-
-* Raspberry Pi or NVIDIA Jetson Nano
-
-  **front-end**
-
-* react.js, vue.js 등 사용한 front-end 프레임워크 
-* UI framework
-* 기타 사용한 라이브러리
-
-### 설치 안내 \(Installation Process\)
-
-```bash
-$ git clone git주소
-$ pip install opencv-python
-$ pip install google-cloud-vision
-$ pip install telepot
-```
-
-### 프로젝트 사용법 \(Getting Started\)
-
-**마크다운 문법을 이용하여 자유롭게 기재**
-
-#### Mask Training
-
-**구조**
-
-```bash
-├── dataset
-│   ├── with_mask [690 entries]
-│   └── without_mask [686 entries]
-├── examples
-│   ├── example_01.png
-│   ├── example_02.png
-│   └── example_03.png
-├── face_detector
-│   ├── deploy.prototxt
-│   └── res10_300x300_ssd_iter_140000.caffemodel
-├── detect_mask_image.py
-├── detect_mask_video.py
-├── mask_detector.model
-├── plot.png
-└── train_mask_detector.py
-```
-
-잘 모를 경우 구글 검색 - 마크다운 문법 [https://post.naver.com/viewer/postView.nhn?volumeNo=24627214&memberNo=42458017](https://post.naver.com/viewer/postView.nhn?volumeNo=24627214&memberNo=42458017)
-
-편한 마크다운 에디터를 찾아서 사용 샘플 에디터 [https://stackedit.io/app\#](https://stackedit.io/app#)
-
-### 팀 정보 \(Team Information\)
-
-* Donghyeon Cho \(hyeon9698@naver.com\), Github Id: hyeon9698
-* kim su ji \(suji999@gmail.com\), Github Id: suji999
-
-### 저작권 및 사용권 정보 \(Copyleft / End User License\)
+## License
+라이센스의 구체적인 내용은 현 저장소의 LICENSE 파일 및 GitBook의 <a href="https://co-vision.gitbook.io/co-vision-1/license/">LICENSE 페이지</a>를 참조.
 
 * [MIT](https://github.com/osam2020-WEB/Sample-ProjectName-TeamName/blob/master/license.md)
-
-  **😷**
 
