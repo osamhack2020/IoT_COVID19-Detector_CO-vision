@@ -5,8 +5,6 @@ import cv2
 import numpy as np
 import os
 import io
-import json
-import requests
 from google.cloud import vision
 import telepot
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
