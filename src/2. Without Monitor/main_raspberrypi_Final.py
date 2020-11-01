@@ -9,9 +9,7 @@ from google.cloud import vision
 import telepot
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.models import load_model
-import math
 
-############################################################################
 
 # telegram API bot = co_vision_bot
 token = '1130712531:AAE3W0J9Y3s2opGvE_c8My8e96-vhqlLAGE'
@@ -21,14 +19,10 @@ bot = telepot.Bot(token)
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
 
-############################################################################
-
 facenet = cv2.dnn.readNet('MaskDetection/models/deploy.prototxt', 'MaskDetection/models/res10_300x300_ssd_iter_140000.caffemodel')
 # FaceDetector 모델 > OpenCv의 DNN
 model = load_model('MaskDetection/models/mask_detector.model')
 # MaskDetector 모델 > Keras 모델
-
-############################################################################
 
 thermal_camera = Lepton()
 fir = flir_image_extractor.FlirImageExtractor()
@@ -45,8 +39,6 @@ out = cv2.VideoWriter('output.mp4', fourcc, 1, (img.shape[1], img.shape[0]))
 # 현재 테스트 동영상의 프레임은 25
 number = 0  # 마스크 안 쓴 사람 사진 저장할 때 사용
 
-############################################################################
-
 def get_max_temperature(thermal_np, x1, y1, x2, y2):
     # 온도 데이터에서 얼굴 영역만 잘라서 검사함
     crop = thermal_np[y1:y2, x1:x2]
@@ -55,7 +47,6 @@ def get_max_temperature(thermal_np, x1, y1, x2, y2):
 
     # 얼굴 영역에서 가장 높은 온도 리턴
     return np.max(crop)
-
 # google vision API
 def find_name_and_display(IMAGE_FILE,x1,x2,result_img,color):
     with io.open(IMAGE_FILE, 'rb') as image_file:
@@ -76,8 +67,6 @@ def find_name_and_display(IMAGE_FILE,x1,x2,result_img,color):
                 #              lineType=cv2.LINE_AA)
                 Final_Text += x
     return Final_Text
-
-############################################################################
 
 while cap.isOpended():
     ret, img = cap.read()
@@ -174,12 +163,8 @@ while cap.isOpended():
                                       lineType=cv2.LINE_AA)
                         Final_Text += x
             Final_Text = find_name_and_display(IMAGE_FILE, x1, x2, result_img, color)
-            # print('한글 -> ' + Final_Text)
-
-            #############################################################################
             message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str(
                 '%d%%' % (nomask * 100))
-
             # # telegram 사진 문자 보내는 코드
             f = open(IMAGE_FILE, 'rb')
             response = bot.sendPhoto(mc, f)
