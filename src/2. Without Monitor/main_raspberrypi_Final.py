@@ -149,19 +149,6 @@ while cap.isOpended():
 
             image = vision.Image(content=content)
             response = client.document_text_detection(image=image)
-            Final_Text = ""
-            for data in response.text_annotations:
-                xx1 = data.bounding_poly.vertices[0].x - 60  # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
-                yy1 = data.bounding_poly.vertices[0].y
-                xx2 = data.bounding_poly.vertices[2].x
-                yy2 = data.bounding_poly.vertices[2].y + 20
-                if xx1 > (x1 + x2) // 2 or xx2 > (x1 + x2) // 2:
-                    continue
-                for x in data.description:
-                    if ord('가') <= ord(x) <= ord('힣'):
-                        cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color,
-                                      lineType=cv2.LINE_AA)
-                        Final_Text += x
             Final_Text = find_name_and_display(IMAGE_FILE, x1, x2, result_img, color)
             message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str(
                 '%d%%' % (nomask * 100))

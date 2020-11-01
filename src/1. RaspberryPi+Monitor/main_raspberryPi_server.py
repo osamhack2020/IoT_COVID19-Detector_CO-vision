@@ -1,10 +1,13 @@
 # 라즈베리 파이와 연결된 컴퓨터나 노트북에서 실행할 코드
 import imagezmq
+import flir_image_extractor
+from flirpy.camera.lepton import Lepton
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.models import load_model
 import numpy as np
 import cv2
-import os, io
+import os
+import io
 from google.cloud import vision
 import telepot
 
@@ -16,14 +19,6 @@ bot = telepot.Bot(token)
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
 
-def get_max_temperature(thermal_np, x1, y1, x2, y2):
-    # 온도 데이터에서 얼굴 영역만 잘라서 검사함
-    crop = thermal_np[y1:y2, x1:x2]
-    if crop.size == 0:
-        return None
-
-    # 얼굴 영역에서 가장 높은 온도 리턴
-    return np.max(crop)
 facenet = cv2.dnn.readNet('MaskDetection/models/deploy.prototxt', 'MaskDetection/models/res10_300x300_ssd_iter_140000.caffemodel')
 # FaceDetector 모델 > OpenCv의 DNN
 model = load_model('MaskDetection/models/mask_detector.model')
@@ -35,8 +30,40 @@ out = cv2.VideoWriter('output.mp4', fourcc, 1, (img.shape[1], img.shape[0]))
 number = 0  # 마스크 안 쓴 사람 사진 저장할 때 사용
 image_hub = imagezmq.ImageHub()
 
+thermal_camera = Lepton()
+fir = flir_image_extractor.FlirImageExtractor()
+def get_max_temperature(thermal_np, x1, y1, x2, y2):
+    # 온도 데이터에서 얼굴 영역만 잘라서 검사함
+    crop = thermal_np[y1:y2, x1:x2]
+    if crop.size == 0:
+        return None
+
+    # 얼굴 영역에서 가장 높은 온도 리턴
+    return np.max(crop)
+# google vision API
+def find_name_and_display(IMAGE_FILE,x1,x2,result_img,color):
+    with io.open(IMAGE_FILE, 'rb') as image_file:
+        content = image_file.read()
+    image = vision.Image(content=content)
+    response = client.document_text_detection(image=image)
+    Final_Text = ""
+    for data in response.text_annotations:
+        xx1 = data.bounding_poly.vertices[0].x - 60  # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+        yy1 = data.bounding_poly.vertices[0].y
+        xx2 = data.bounding_poly.vertices[2].x
+        yy2 = data.bounding_poly.vertices[2].y + 20
+        if xx1 > (x1 + x2) // 2 or xx2 > (x1 + x2) // 2:  # 이름표가 오른쪽 가슴에 있으므로 얼굴 왼쪽은 무시함
+            continue
+        for x in data.description:
+            if ord('가') <= ord(x) <= ord('힣'): # 한글인 경우 Final_Text에 추가
+                # cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color,
+                #              lineType=cv2.LINE_AA)
+                Final_Text += x
+    return Final_Text
+
 while True:
     ret, img = image_hub.recv_image()
+    thermal_image_data = thermal_camera.grab()
     if not ret:
         break
     # Optional step 영상이 돌려져 있으면 돌리기
@@ -90,8 +117,12 @@ while True:
         # 계산된 결과를 현재 돌아가고 있는 얼굴영역 위에 Text를 써줌으로써 표시한다. 마스크 썼을확률은 label에 들어있음.
         cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, color=color, thickness=2, lineType=cv2.LINE_AA)
 
-        # 마스크 안썻을 확률이 일정확률 이상인 경우
-        if nomask >= 0.75:
+        # 여기서 열 감지
+        thermal_np = fir.process_image(thermal_image_data)
+        max_temperature = get_max_temperature(thermal_np, x1, y1, x2, y2)
+
+        # 마스크 안썻을 확률이 일정확률 이상인 경우 + 얼굴 온도가 37.5도 이상인 경우
+        if nomask >= 0.75 or max_temperature >= 37.5:
             # 해당 인원 사진 저장
             number += 1
             cv2.imwrite('No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg', result_img)
@@ -102,19 +133,7 @@ while True:
                 content = image_file.read()
             image = vision.Image(content=content)
             response = client.document_text_detection(image=image)
-            Final_Text = ""
-            for data in response.text_annotations:
-                xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
-                yy1 = data.bounding_poly.vertices[0].y
-                xx2 = data.bounding_poly.vertices[2].x
-                yy2 = data.bounding_poly.vertices[2].y + 20
-                if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2:
-                    continue
-                for x in data.description:
-                    if ord('가') <= ord(x) <= ord('힣'):
-                        cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
-                        Final_Text += x
-            print('한글 -> ' + Final_Text)
+            Final_Text = find_name_and_display(IMAGE_FILE, x1, x2, result_img, color)
             message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
             
 
@@ -129,13 +148,12 @@ while True:
         break
     image_hub.send_reply(b'OK')
 out.release()
-
+thermal_camera.close()
+image_hub.close()
 
 while True:
     rpi_name, image = image_hub.recv_image()
-
     cv2.imshow(rpi_name, image)
     if cv2.waitKey(1) == ord('q'):
         break
-
     image_hub.send_reply(b'OK')
