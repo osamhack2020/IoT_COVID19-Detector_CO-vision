@@ -22,22 +22,14 @@ facenet = cv2.dnn.readNet('../training custom dataset/face_detector/deploy.proto
 # FaceDetector 모델 > OpenCv의 DNN
 model = load_model('../training custom dataset/mask_detector.model')
 # MaskDetector 모델 > Keras 모델
-fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-out = cv2.VideoWriter('output.mp4', fourcc, 1, (img.shape[1], img.shape[0]))
 # cv2.VideoWriter(outputFile, fourcc, frame, size) : fourcc는 코덱 정보, frame은 초당 저장될 프레임, size는 저장될 사이즈를 뜻합니다 cv2.VideoWriter_fourcc('D','I','V','X') 이런식으로 사용
 # 현재 테스트 동영상의 프레임은 25
-number = 0  # 마스크 안 쓴 사람 사진 저장할 때 사용
 
 thermal_camera = Lepton()
 fir = flir_image_extractor.FlirImageExtractor()
 
-facenet = cv2.dnn.readNet('MaskDetection/models/deploy.prototxt', 'MaskDetection/models/res10_300x300_ssd_iter_140000.caffemodel')
-# FaceDetector 모델 > OpenCv의 DNN
-model = load_model('MaskDetection/models/mask_detector.model')
-# MaskDetector 모델 > Keras 모델
-cap = cv2.VideoCapture('imgs/junha_video.mp4')
+cap = cv2.VideoCapture(0)
 # 동영상 로드
-# 노트북 캠의 실시간 영상을 받아오고 싶으면 0을 넣으면 된다!
 ret, img = cap.read()
 # ret이 True이면 영상이 있다는 뜻
 fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
