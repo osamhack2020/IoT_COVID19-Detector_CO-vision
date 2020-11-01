@@ -1,5 +1,7 @@
-# Co-Vision : COVID-19 Detector
+[![English](https://img.shields.io/badge/-English-blue.svg?style=flat)](https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/blob/master/README_EN.md) 
+[![한국어](https://img.shields.io/badge/-한국어-red.svg?style=flat)](https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/blob/master/README.md)
 
+# Co-Vision : COVID-19 Detector
 
 <p align="center">
 	
@@ -26,7 +28,7 @@
 </p>
 
 ## Contribution
-오픈소스 프로젝트 개발과정 및 시연 영상, 다이어그램, 개발 과정 간 이루어진 소통 및 목표 설정 과정, 발표자료는 <br> 아래의 **Google Cloud 페이지**에서 확인 가능합니다.
+본 오픈소스 프로젝트의 개발과정 및 시연 영상, 다이어그램, 개발 과정 간 이루어진 소통 및 목표 설정 과정, 발표자료는 <br> 아래의 **Google Cloud 페이지**에서 확인 가능합니다.
 
 <p align="center">
 <a href="https://drive.google.com/drive/folders/1kGrH57Qie1oji6Jd21oKtLEYH_ThHF5-?usp=sharing"  target="_blank">
