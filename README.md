@@ -24,8 +24,6 @@
 </a>
 </p>
 
-<br>
-
 ## License
 라이센스의 구체적인 내용은 현 저장소의 LICENSE 파일 및 GitBook의 <a href="https://co-vision.gitbook.io/co-vision-1/license/">LICENSE 페이지</a>를 참조하시면 됩니다.
 
