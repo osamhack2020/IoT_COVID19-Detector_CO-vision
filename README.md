@@ -20,7 +20,7 @@
 	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/network"><img alt="GitHub forks" src="https://img.shields.io/github/forks/osamhack2020/IoT_COVID19-Detector_CO-vision"></a>
 	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/osamhack2020/IoT_COVID19-Detector_CO-vision"></a>
 </p>
-<br><br><br>
+<br>
 
 ## License
 라이센스의 구체적인 내용은 현 저장소의 LICENSE 파일 및 GitBook의 <a href="https://co-vision.gitbook.io/co-vision-1/license/">LICENSE 페이지</a>를 참조.
