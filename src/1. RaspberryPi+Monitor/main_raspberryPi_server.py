@@ -127,7 +127,7 @@ while True:
             number += 1
             cv2.imwrite('No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg', result_img)
 
-            temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
+            temperature = max_temperature  # 현재 온도 변수가 없으므로 임시로 설정
             IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
             with io.open(IMAGE_FILE, 'rb') as image_file:
                 content = image_file.read()

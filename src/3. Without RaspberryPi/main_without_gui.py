@@ -1,59 +1,35 @@
 # Data Set을 만들어서 학습.
+import flir_image_extractor
+from flirpy.camera.lepton import Lepton
+import cv2
+import numpy as np
+import os
+import io
+from google.cloud import vision
+import telepot
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.models import load_model
-import numpy as np
-import cv2
-# import matplotlib.pyplot as plt
-import os, io
-import json
-import requests
-from google.cloud import vision
-#########################################################################텔레그렘 수정 내용
-import telepot
 
 # bot = co_vision_bot
 token = '1130712531:AAE3W0J9Y3s2opGvE_c8My8e96-vhqlLAGE'
 mc = '1314303321'
 bot = telepot.Bot(token)
-####################################### ##################################
 # 구글 API 설정
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
 
-# 카카오톡 메시지 커스텀 템플릿 주소 : https://kapi.kakao.com/v2/api/talk/memo/send
-talk_url = "https://kapi.kakao.com/v2/api/talk/memo/send"
-get_friend_list_url = 'https://kapi.kakao.com/v1/api/talk/friends'
-send_me_url = 'https://kapi.kakao.com/v2/api/talk/memo/default/send'
-send_friend_url = 'https://kapi.kakao.com/v1/api/talk/friends/message/default/send'
-# 카카오 사용자 토큰
-token = 'REST API'  # REST API
-accessToken = 'accessToken'
-headers = {
-    "Authorization": 'Bearer ' + str(accessToken).format(
-        token=token
-    )
-}
+facenet = cv2.dnn.readNet('MaskDetection/models/deploy.prototxt', 'MaskDetection/models/res10_300x300_ssd_iter_140000.caffemodel')
+# FaceDetector 모델 > OpenCv의 DNN
+model = load_model('MaskDetection/models/mask_detector.model')
+# MaskDetector 모델 > Keras 모델
+fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+out = cv2.VideoWriter('output.mp4', fourcc, 1, (img.shape[1], img.shape[0]))
+# cv2.VideoWriter(outputFile, fourcc, frame, size) : fourcc는 코덱 정보, frame은 초당 저장될 프레임, size는 저장될 사이즈를 뜻합니다 cv2.VideoWriter_fourcc('D','I','V','X') 이런식으로 사용
+# 현재 테스트 동영상의 프레임은 25
+number = 0  # 마스크 안 쓴 사람 사진 저장할 때 사용
 
-
-# 카카오 친구 목록 얻어오기. 수정 필요
-def getFriendList(accessToken):
-    payload = ''
-    headers = {
-        'Content-Type': "application/x-www-form-urlencoded",
-        'Cache-Control': "no-cache",
-        'Authorization': "Bearer " + str(accessToken),
-    }
-    response = requests.request("GET", get_friend_list_url, data=payload, headers=headers)
-    # print(response)
-    friend_List = json.loads(((response.text).encode('utf-8')))
-    friend_UUID_List = []
-    elements = response.json().get('elements')
-    for element in elements:
-        # print(element.get("uuid"))
-        friend_UUID_List.append(element.get("uuid"))
-    # print(friend_UUID_List)
-    return friend_UUID_List[0]
-
+thermal_camera = Lepton()
+fir = flir_image_extractor.FlirImageExtractor()
 
 facenet = cv2.dnn.readNet('MaskDetection/models/deploy.prototxt', 'MaskDetection/models/res10_300x300_ssd_iter_140000.caffemodel')
 # FaceDetector 모델 > OpenCv의 DNN
@@ -69,8 +45,38 @@ out = cv2.VideoWriter('output.mp4', fourcc, 1, (img.shape[1], img.shape[0]))
 # cv2.VideoWriter(outputFile, fourcc, frame, size) : fourcc는 코덱 정보, frame은 초당 저장될 프레임, size는 저장될 사이즈를 뜻합니다 cv2.VideoWriter_fourcc('D','I','V','X') 이런식으로 사용
 # 현재 테스트 동영상의 프레임은 25
 number = 0  # 마스크 안 쓴 사람 사진 저장할 때 사용
+
+def get_max_temperature(thermal_np, x1, y1, x2, y2):
+    # 온도 데이터에서 얼굴 영역만 잘라서 검사함
+    crop = thermal_np[y1:y2, x1:x2]
+    if crop.size == 0:
+        return None
+
+    # 얼굴 영역에서 가장 높은 온도 리턴
+    return np.max(crop)
+# google vision API
+def find_name_and_display(IMAGE_FILE,x1,x2,result_img,color):
+    with io.open(IMAGE_FILE, 'rb') as image_file:
+        content = image_file.read()
+    image = vision.Image(content=content)
+    response = client.document_text_detection(image=image)
+    Final_Text = ""
+    for data in response.text_annotations:
+        xx1 = data.bounding_poly.vertices[0].x - 60  # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+        yy1 = data.bounding_poly.vertices[0].y
+        xx2 = data.bounding_poly.vertices[2].x
+        yy2 = data.bounding_poly.vertices[2].y + 20
+        if xx1 > (x1 + x2) // 2 or xx2 > (x1 + x2) // 2:  # 이름표가 오른쪽 가슴에 있으므로 얼굴 왼쪽은 무시함
+            continue
+        for x in data.description:
+            if ord('가') <= ord(x) <= ord('힣'): # 한글인 경우 Final_Text에 추가
+                # cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color,
+                #              lineType=cv2.LINE_AA)
+                Final_Text += x
+    return Final_Text
 while cap.isOpened():
     ret, img = cap.read()
+    thermal_image_data = thermal_camera.grab()
     if not ret:
         break
     # Optional step 영상이 돌려져 있으면 돌리기
@@ -124,41 +130,19 @@ while cap.isOpened():
         # 계산된 결과를 현재 돌아가고 있는 얼굴영역 위에 Text를 써줌으로써 표시한다. 마스크 썼을확률은 label에 들어있음.
         cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, color=color, thickness=2, lineType=cv2.LINE_AA)
 
-        # 마스크 안썻을 확률이 일정확률 이상인 경우
-        if nomask >= 0.75:
+        # 여기서 열 감지
+        thermal_np = fir.process_image(thermal_image_data)
+        max_temperature = get_max_temperature(thermal_np, x1, y1, x2, y2)
+
+        # 마스크 안썻을 확률이 일정확률 이상인 경우 + 얼굴 온도가 37.5도 이상인 경우
+        if nomask >= 0.75 or max_temperature >= 37.5:
             # 해당 인원 사진 저장
             number += 1
             cv2.imwrite('No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg', result_img)
 
-            temperature = 36.5  # 현재 온도 변수가 없으므로 임시로 설정
+            temperature = max_temperature
 
-            #############################################################################
-            # GoogleVisionAPI branch  에서 추가한 내용
             IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
-            # FOLDER_PATH = r'C:\Users\Administrator\anaconda3\envs\VisionAPIDemo'
-            # FILE_PATH = os.path.join(FOLDER_PATH, IMAGE_FILE)
-            #Name_img = img[y2:h, 0:(x1+x2)/2]
-
-            # with io.open(Name_img, 'rb') as image_file:
-            #     content = image_file.read()
-
-
-
-            #해당 영역만 사진을 잘라서 한글을 인식함
-            # name_img = img[y2:h, 0:(x1+x2)//2]
-            # is_success, im_buf_arr = cv2.imencode(".jpg",name_img)
-            # byte_im = im_buf_arr.tobytes()
-            # image = vision.Image(content=byte_im)
-            # response = client.document_text_detection(image=image)
-            # docText = response.full_text_annotation.text
-
-            # name_img = img[y2:h, 0:(x1+x2)//2]
-            # is_success, im_buf_arr = cv2.imencode(".jpg",name_img)
-            # io_buf = io.BytesIO(im_buf_arr)
-            # byte_im = io_buf.getvalue()
-            # image = vision.Image(content=byte_im)
-            # response = client.document_text_detection(image=image)
-            # docText = response.full_text_annotation.text
 
 
             with io.open(IMAGE_FILE, 'rb') as image_file:
@@ -210,36 +194,6 @@ while cap.isOpened():
             # response = bot.sendPhoto(mc, f)
             # response = bot.sendMessage(mc,message_description)
 
-            # 전달할 메시지 내용 JSON형식으로 저장후 전달
-            # message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
-            # template = {
-            #     "object_type": "feed",
-            #     "content": {
-            #         "image_url": "IMAGE_URL, 클라이언트의 사진을 가져오거나 서버의 사진을 가져오기가 아닌 URL상에서 가져와야함",
-            #         "title": "이상증상자 및 마스크 미착용자 식별",
-            #         "description": message_description,
-            #         "image_width": 640,
-            #         "image_height": 640,
-            #         "link": {
-            #             "web_url": "http://www.daum.net",
-            #             "mobile_web_url": "http://m.daum.net",
-            #         }
-            #     }
-            # }
-            # data = {
-            #     # 허동준 UUID : MAIwCT4JPggkFiAVJhIhFCMbNwM6CzsLPnY
-            #     # 조동현 UUID : MAIzAjYFNQcxHSgaLh8qHi4aNgI7CjoKP28
-            #     # 친구목록에서 얻어온 UUID 값으로 해야 하므로 수정 필요
-            #     'receiver_uuids': '["MAIzAjYFNQcxHSgaLh8qHi4aNgI7CjoKP28"]',
-            #     "template_object": json.dumps(template)
-            # }
-            # # 메시지 전송 및 오류 검출
-            # response = requests.post(send_friend_url, headers=headers, data=data)
-            # print(response.status_code)
-            # if response.json().get('result_code') == 0:
-            #     print('메시지를 성공적으로 보냈습니다.')
-            # else:
-            #     print('메시지를 성공적으로 보내지 못했습니다. 오류메시지 : ' + str(response.json()))
 
     out.write(result_img)
     resized_img = cv2.resize(result_img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
