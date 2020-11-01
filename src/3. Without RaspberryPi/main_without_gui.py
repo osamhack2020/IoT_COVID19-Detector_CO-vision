@@ -138,68 +138,22 @@ while cap.isOpened():
         if nomask >= 0.75 or max_temperature >= 37.5:
             # 해당 인원 사진 저장
             number += 1
-            cv2.imwrite('No_Mask_File/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg', result_img)
-
             temperature = max_temperature
-
-            IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
-
-
+            cv2.imwrite('No_Mask-High_Temp/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + 'Temp_' + str(max_temperature) + '.jpg', result_img)
+            IMAGE_FILE = 'No_Mask-High_Temp/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + 'Temp_' + str(max_temperature) + '.jpg'
             with io.open(IMAGE_FILE, 'rb') as image_file:
                 content = image_file.read()
-
             image = vision.Image(content=content)
             response = client.document_text_detection(image=image)
-            Final_Text = ""
-            for data in response.text_annotations:
-                xx1 = data.bounding_poly.vertices[0].x - 60 # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
-                yy1 = data.bounding_poly.vertices[0].y
-                xx2 = data.bounding_poly.vertices[2].x
-                yy2 = data.bounding_poly.vertices[2].y + 20
-                if xx1 > (x1+x2)//2 or xx2 > (x1+x2)//2:
-                    continue
-                for x in data.description:
-                    if ord('가') <= ord(x) <= ord('힣'):
-                        cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
-                        Final_Text += x
-
-            print('한글 -> ' + Final_Text)
-
-            # with io.open(IMAGE_FILE, 'rb') as image_file:
-            #     content = image_file.read()
-
-            # image = vision.Image(content=content)
-            # response = client.document_text_detection(image=image)
-            # docText = response.full_text_annotation.text
-
-
-
-
-
-            # # 한글만 가져오는 코드
-            # Final_Text = ""
-            # Flag = False
-            # for x in docText:
-            #     if ord('가') <= ord(x) <= ord('힣'):
-            #         Flag = True
-            #         Final_Text += x
-
-            # print('한글 -> ' + Final_Text)
-
-            #############################################################################
+            Final_Text = find_name_and_display(IMAGE_FILE, x1, x2, result_img, color)
             message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
-            
-            
-            # f = open(IMAGE_FILE,'rb')
-            # response = bot.sendPhoto(mc, f)
-            # response = bot.sendMessage(mc,message_description)
-
-
+            f = open(IMAGE_FILE,'rb')
+            response = bot.sendPhoto(mc, f)
+            response = bot.sendMessage(mc,message_description)
     out.write(result_img)
     resized_img = cv2.resize(result_img, dsize=(0, 0), fx=0.3, fy=0.3, interpolation=cv2.INTER_LINEAR)
     cv2.imshow('result', resized_img)  # 실시간 모니터링하고 있는 화면을 띄워줌
     if cv2.waitKey(1) == ord('q'):  # q누르면 동영상 종료
         break
-
 out.release()
 cap.release()

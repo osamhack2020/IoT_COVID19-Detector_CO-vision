@@ -136,14 +136,9 @@ while cap.isOpended():
         if nomask >= 0.75 or max_temperature >= 37.5:
             # 해당 인원 사진 저장
             number += 1
-            cv2.imwrite('No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg',
-                        result_img)
-
             temperature = max_temperature
-
-            IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (nomask * 100) + str(number)) + '.jpg'
-
-
+            cv2.imwrite('No_Mask-High_Temp/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + 'Temp_' + str(max_temperature) + '.jpg', result_img)
+            IMAGE_FILE = 'No_Mask-High_Temp/' + str(i)+'_'+str('No_Mask%d%%_' % (nomask * 100) + str(number)) + 'Temp_' + str(max_temperature) + '.jpg'
             with io.open(IMAGE_FILE, 'rb') as image_file:
                 content = image_file.read()
 

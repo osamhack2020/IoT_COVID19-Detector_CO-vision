@@ -193,21 +193,24 @@ class MainWindow(QWidget):
             max_temperature = self.get_max_temperature(thermal_np, x1, y1, x2, y2)
 
             # 마스크 안썻을 확률이 일정확률 이상인 경우
-            if self.nomask >= 0.75:
+            if self.nomask >= 0.75 or max_temperature >= 37.5:
                 # 해당 인원 사진 저장
                 self.dq.appendleft(face)
                 if len(self.dq) == 4:
                     self.dq.pop()
                 self.number += 1
+                temperature = max_temperature
+                cv2.imwrite('No_Mask-High_Temp/' + str(i) + '_' + str(
+                    'No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + 'Temp_' + str(max_temperature) + '.jpg',
+                            result_img)
+                IMAGE_FILE = 'No_Mask-High_Temp/' + str(i) + '_' + str(
+                    'No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + 'Temp_' + str(max_temperature) + '.jpg'
+
                 saved_file = 'No_Mask_File/' + str(i) + '_' + str(
                     'No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + '.jpg'
                 cv2.imwrite(saved_file, result_img)
                 self.put_img_to_labels(self.dq)
                 self.temperature = max_temperature
-
-                IMAGE_FILE = 'No_Mask_File/' + str(i) + '_' + str(
-                    'No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + '.jpg'
-
                 self.Final_Text = self.find_name_and_display(IMAGE_FILE, x1, x2, result_img, color)
 
 
