@@ -29,9 +29,9 @@ bot = telepot.Bot(token)
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
 client = vision.ImageAnnotatorClient()
 
-facenet = cv2.dnn.readNet('MaskDetection/models/deploy.prototxt', 'MaskDetection/models/res10_300x300_ssd_iter_140000.caffemodel')
+facenet = cv2.dnn.readNet('../training custom dataset/face_detector/deploy.prototxt', '../training custom dataset/face_detector/res10_300x300_ssd_iter_140000.caffemodel')
 # FaceDetector 모델 > OpenCv의 DNN
-model = load_model('MaskDetection/models/mask_detector.model')
+model = load_model('../training custom dataset/mask_detector.model')
 # MaskDetector 모델 > Keras 모델
 
 thermal_camera = Lepton()
