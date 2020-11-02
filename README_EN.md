@@ -21,7 +21,7 @@
 ## Manual
 This project is an open source project and Details of the project can be found in the Gitbook.
 <p align="center">
-<a href="https://co-vision.gitbook.io/co-vision-1//">
+<a href="https://co-vision.gitbook.io/co-vision-eng/">
 <img src="https://img.shields.io/badge/GitBook-project_doc-blue?&style=for-the-badge&logo=github">
 </a>
 </p>
@@ -36,7 +36,7 @@ This open source project development process, demonstration video, diagram, comm
 </p>
 
 ## License
-Refer to the GitBook <a href="https://co-vision.gitbook.io/co-vision-1/license/">LICENSE page</a> for the details of the license
+Refer to the GitBook <a href="https://co-vision.gitbook.io/co-vision-eng/license/">LICENSE page</a> for the details of the license
 
 * Code for RaspberryPi: BSD 3-Clause
 
