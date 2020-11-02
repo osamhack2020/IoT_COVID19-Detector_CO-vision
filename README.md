@@ -23,7 +23,10 @@
 본 프로젝트는 오픈소스 프로젝트로 진행되며, 프로젝트에 관한 자세한 내용은 아래 Gitbook에서 확인 가능합니다.
 <p align="center">
 <a href="https://co-vision.gitbook.io/co-vision/">
-<img src="https://img.shields.io/badge/GitBook-project_doc-blue?&style=for-the-badge&logo=github">
+<img src="https://img.shields.io/badge/GitBook-Project__DOC__KOR-blue?style=for-the-badge&logo=github">
+</a>
+<a href="https://co-vision.gitbook.io/co-vision-eng/">
+<img src="https://img.shields.io/badge/GitBook-Project__DOC__ENG-red?style=for-the-badge&logo=github">
 </a>
 </p>
 
@@ -32,7 +35,7 @@
 
 <p align="center">
 <a href="https://drive.google.com/drive/folders/1kGrH57Qie1oji6Jd21oKtLEYH_ThHF5-?usp=sharing"  target="_blank">
-<img src=https://img.shields.io/badge/Google%20Cloud-Team%20Work-orange?&style=for-the-badge&logo=notion">
+<img src=https://img.shields.io/badge/Google%20Cloud-Team%20Work-orange?&style=for-the-badge&logo=cloud">
 </a>
 </p>
 
