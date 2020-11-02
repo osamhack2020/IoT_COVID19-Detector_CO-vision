@@ -21,8 +21,11 @@
 ## Manual
 This project is an open source project and Details of the project can be found in the Gitbook.
 <p align="center">
+<a href="https://co-vision.gitbook.io/co-vision/">
+<img src="https://img.shields.io/badge/GitBook-Project__DOC__KOR-blue?style=for-the-badge&logo=github">
+</a>
 <a href="https://co-vision.gitbook.io/co-vision-eng/">
-<img src="https://img.shields.io/badge/GitBook-project_doc-blue?&style=for-the-badge&logo=github">
+<img src="https://img.shields.io/badge/GitBook-Project__DOC__ENG-red?style=for-the-badge&logo=github">
 </a>
 </p>
 
@@ -31,7 +34,7 @@ This open source project development process, demonstration video, diagram, comm
 
 <p align="center">
 <a href="https://drive.google.com/drive/folders/1kGrH57Qie1oji6Jd21oKtLEYH_ThHF5-?usp=sharing"  target="_blank">
-<img src=https://img.shields.io/badge/Google%20Cloud-Team%20Work-orange?&style=for-the-badge&logo=notion">
+<img src=https://img.shields.io/badge/Google%20Cloud-Team%20Work-orange?&style=for-the-badge&logo=cloud">
 </a>
 </p>
 
