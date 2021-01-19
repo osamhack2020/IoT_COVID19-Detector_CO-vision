@@ -11,7 +11,7 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.models import load_model
 
 # telegram API bot = co_vision_bot
-token = 'token-value'
+token = 'telegram-token-value'
 mc = 'value'
 bot = telepot.Bot(token)
 # 구글 비전 API 설정 (환경변수 설정 / json파일은 서비스 계정 키가 포함된 파일)
@@ -38,7 +38,7 @@ number = 0  # 마스크 안 쓴 사람 사진 저장할 때 사용
 def get_max_temperature(thermal_np, x1, y1, x2, y2):
     # 온도 데이터에서 얼굴 영역만 잘라서 검사함
     crop = thermal_np[y1:y2, x1:x2]
-    if crop.size == 0:
+    if crop.size == 0: #얼굴이 검출이 안되면 crop의 size는 0
         return None
 
     # 얼굴 영역에서 가장 높은 온도 리턴
@@ -65,17 +65,16 @@ def find_name_and_display(IMAGE_FILE,x1,x2,result_img,color):
             continue
         for x in data.description:
             if ord('가') <= ord(x) <= ord('힣'): # 한글이외의 글자들은 모두 걸러내는 텍스트 가공과정
-                # cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color,
-                #              lineType=cv2.LINE_AA)
+                cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
                 Final_Text += x
     return Final_Text
 while cap.isOpened():
-    ret, img = cap.read()
-    thermal_image_data = thermal_camera.grab()
+    ret, img = cap.read() #가시광선 카메라 현재화면을 이미지로 read
+    thermal_image_data = thermal_camera.grab() #적외선 카메라 현재화면을 이미지로 grab
     if not ret:
         break
-    # Optional step 영상이 돌려져 있으면 돌리기
-    img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+
+    img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE) #가시광선 카메라 모습을 정상적으로 읽기위해 rotate. 카메라가 비추는 방향에 따라 삭제또는 유지
     h, w = img.shape[:2]
 
     blob = cv2.dnn.blobFromImage(img, scalefactor=1., size=(300, 300), mean=(104., 177., 123.))
@@ -101,10 +100,11 @@ while cap.isOpened():
         y1 = int(dets[0, 0, i, 4] * h)
         x2 = int(dets[0, 0, i, 5] * w)
         y2 = int(dets[0, 0, i, 6] * h)
-        # print(i, confidence, x1, y1, x2, y2) i는 몇번째 얼굴인지, cofidence는 실제 얼굴이맞을 확률. 그 뒤는 좌표
+        # print(i, confidence, x1, y1, x2, y2) i는 몇번째 얼굴인지, cofidence는 실제 얼굴이 맞을 확률. 그 뒤는 좌표
         face = img[y1:y2, x1:x2]  # bounding Box을 통해 얼굴만 저장
 
-        # 마스크를 썼나 안썼나 예측
+
+        # 마스크 착용여부 체크 코드
         # 전처리하는 부분
         face_input = cv2.resize(face, dsize=(224, 224))  # 이미지 크기 변경
         face_input = cv2.cvtColor(face_input, cv2.COLOR_BGR2RGB)  # 이미지의 컬러시스템 변경
@@ -125,11 +125,11 @@ while cap.isOpened():
         # 계산된 결과를 현재 돌아가고 있는 얼굴영역 위에 Text를 써줌으로써 표시한다. 마스크 썼을확률은 label에 들어있음.
         cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=0.8, color=color, thickness=2, lineType=cv2.LINE_AA)
 
-        # 여기서 열 감지
-        thermal_np = fir.process_image(thermal_image_data)
-        max_temperature = get_max_temperature(thermal_np, x1, y1, x2, y2)
+        # 체온체크 코드
+        thermal_np = fir.process_image(thermal_image_data)  # Lepton에서 따온 이미지를 Flir Image Extractor Library을 이용하여 이미지 처리
+        max_temperature = get_max_temperature(thermal_np, x1, y1, x2, y2) # 가공된 이미지를 이용해 기존에 구한 얼굴 영역만을 대상으로 가장 높은 온도 반환
 
-        # 마스크 안썻을 확률이 일정확률 이상인 경우 + 얼굴 온도가 37.5도 이상인 경우
+        # 마스크 미착용 확률이 일정확률 이상 이거나 얼굴 영역 최고온도가 고열인 경우
         if nomask >= 0.75 or max_temperature >= 37.5:
             # 해당 인원 사진 저장
             number += 1
@@ -143,7 +143,9 @@ while cap.isOpened():
             response = client.document_text_detection(image=image)
             Final_Text = find_name_and_display(IMAGE_FILE, x1, x2, result_img, color)
 
+            # 전달할 메시지 내용 JSON형식으로 저장후 전달
             message_description = '이름 :' + Final_Text + '\n해당인원 온도 :' + str(temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (nomask * 100))
+            # telegram 사진 문자 보내는 코드
             f = open(IMAGE_FILE,'rb')
             response = bot.sendPhoto(mc, f)
             response = bot.sendMessage(mc,message_description)
