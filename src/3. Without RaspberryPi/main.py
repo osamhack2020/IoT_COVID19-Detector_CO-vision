@@ -22,12 +22,12 @@ from ui_main_window import *
 from collections import deque
 
 # telegram API bot = co_vision_bot
-token = '1130712531:AAE3W0J9Y3s2opGvE_c8My8e96-vhqlLAGE'
-mc = '1314303321'
+token = 'token-value'
+mc = 'value'
 bot = telepot.Bot(token)
-# 구글 API 설정
+# 구글 비전 API 설정 (환경변수 설정 / json파일은 서비스 계정 키가 포함된 파일)
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'ServiceAccountToken.json'
-client = vision.ImageAnnotatorClient()
+client = vision.ImageAnnotatorClient() # 사용할 클라이언트 설정
 
 facenet = cv2.dnn.readNet('../training custom dataset/face_detector/deploy.prototxt', '../training custom dataset/face_detector/res10_300x300_ssd_iter_140000.caffemodel')
 # FaceDetector 모델 > OpenCv의 DNN
@@ -36,7 +36,6 @@ model = load_model('../training custom dataset/mask_detector.model')
 
 thermal_camera = Lepton()
 fir = flir_image_extractor.FlirImageExtractor()
-
 
 class MainWindow(QWidget):
     # class constructor
@@ -50,7 +49,6 @@ class MainWindow(QWidget):
         self.timer = QTimer()
         # set timer timeout callback function
         self.timer.timeout.connect(self.viewCam)
-        #
         # self.timer.timeout.connect(self.viewThermalCam)
         self.cap = cv2.VideoCapture(0)  # 0으로 하면 웹캠 실시간으로 나옴
         self.capthermal = cv2.VideoCapture(1)
@@ -96,20 +94,25 @@ class MainWindow(QWidget):
         with io.open(IMAGE_FILE, 'rb') as image_file:
             content = image_file.read()
 
-        image = vision.Image(content=content)
+        image = vision.Image(content=content) #이미지 파일 넘겨줌
         response = client.document_text_detection(image=image)
-        Final_Text = ""
+        #군복 이름표의 경우 주변환경에 의해 항상 같은 모습으로 촬영되지 않으므로 필기 입력 감지 이용
+        #response에는 상세 정보들이 저장. 어느 언어로 인식 했는지 부터 문장 별, 단어 별, 각 철자 별 어떻게 인식을 하였는지, 이미지에서 위치는 어디에 있는지 등의 정보가 담김.
+        #response의 text_annotations에는 내용을 간추려 철자를 제외한 문장과 단어에 대한 정보를 담음
+
+        Final_Text = "" # 읽은 이름을 저장할 변수
         for data in response.text_annotations:
-            xx1 = data.bounding_poly.vertices[0].x - 60  # 박스가 너무 오른쪽으로 나옴 그래서 수정함.
+            xx1 = data.bounding_poly.vertices[0].x - 60  # 표시될 사각형이 너무 오른쪽으로 튀어나와 좌표 수정
             yy1 = data.bounding_poly.vertices[0].y
             xx2 = data.bounding_poly.vertices[2].x
             yy2 = data.bounding_poly.vertices[2].y + 20
-            if xx1 > (x1 + x2) // 2 or xx2 > (x1 + x2) // 2:
+
+            if xx1 > (x1 + x2) // 2 or xx2 > (x1 + x2) // 2: # 이름표가 오른쪽 가슴에 있으므로 얼굴 왼쪽은 무시함
                 continue
-            for x in data.description:
+
+            for x in data.description: # 한글이외의 글자들은 모두 걸러내는 텍스트 가공과정
                 if ord('가') <= ord(x) <= ord('힣'):
-                    cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color,
-                                  lineType=cv2.LINE_AA)
+                    cv2.rectangle(result_img, pt1=(xx1, yy1), pt2=(xx2, yy2), thickness=7, color=color, lineType=cv2.LINE_AA)
                     Final_Text += x
         return Final_Text
         # print('한글 -> ' + Final_Text)
@@ -150,8 +153,7 @@ class MainWindow(QWidget):
         result_img = img.copy()
 
         # detect face 한뒤, 그 얼굴영역이 마스크 썼을 확률을 계산하여 추가한다.
-        for i in range(dets.shape[
-                           2]):  # 저장이 된 것을 loop을 돌면서 저장. detections.shape[2]는 모델이 가져오는 최대 박스의 갯수. 200이므로 최대 200개의 얼굴을 인식할수 있다.
+        for i in range(dets.shape[2]):  # 저장이 된 것을 loop을 돌면서 저장. detections.shape[2]는 모델이 가져오는 최대 박스의 갯수. 200이므로 최대 200개의 얼굴을 인식할수 있다.
             confidence = dets[0, 0, i, 2]
             # 검사하는데 detection의 결과가 자신있는 정도.
             # detections[0, 0]은 우리가 그릴 박스"들"의 속성
@@ -171,8 +173,7 @@ class MainWindow(QWidget):
             face_input = cv2.resize(face, dsize=(224, 224))  # 이미지 크기 변경
             face_input = cv2.cvtColor(face_input, cv2.COLOR_BGR2RGB)  # 이미지의 컬러시스템 변경
             face_input = preprocess_input(face_input)  # mobileNetV2에서 하는 preprocessing과 똑같이 하기위해 처리
-            face_input = np.expand_dims(face_input,
-                                        axis=0)  # 이렇게 하면 shape이 (224,224,3) 으로 나오는데 넣을때는 (1,224,224,3)이 되어야 하므로 차원하나 추가
+            face_input = np.expand_dims(face_input,axis=0)  # 이렇게 하면 shape이 (224,224,3) 으로 나오는데 넣을때는 (1,224,224,3)이 되어야 하므로 차원하나 추가
 
             mask, self.nomask = model.predict(face_input).squeeze()  # load해놓은 모델에 predict method를 통해, 마스크 여부 확률을 반환
 
@@ -200,14 +201,10 @@ class MainWindow(QWidget):
                     self.dq.pop()
                 self.number += 1
                 temperature = max_temperature
-                cv2.imwrite('No_Mask-High_Temp/' + str(i) + '_' + str(
-                    'No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + 'Temp_' + str(max_temperature) + '.jpg',
-                            result_img)
-                IMAGE_FILE = 'No_Mask-High_Temp/' + str(i) + '_' + str(
-                    'No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + 'Temp_' + str(max_temperature) + '.jpg'
+                cv2.imwrite('No_Mask-High_Temp/' + str(i) + '_' + str('No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + 'Temp_' + str(max_temperature) + '.jpg', result_img)
+                IMAGE_FILE = 'No_Mask-High_Temp/' + str(i) + '_' + str('No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + 'Temp_' + str(max_temperature) + '.jpg'
 
-                saved_file = 'No_Mask_File/' + str(i) + '_' + str(
-                    'No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + '.jpg'
+                saved_file = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + '.jpg'
                 cv2.imwrite(saved_file, result_img)
                 self.put_img_to_labels(self.dq)
                 self.temperature = max_temperature
@@ -215,17 +212,14 @@ class MainWindow(QWidget):
 
 
                 # 전달할 메시지 내용 JSON형식으로 저장후 전달
-                message_description = '이름 :' + self.Final_Text + '\n해당인원 온도 :' + str(
-                    self.temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (self.nomask * 100))
+                message_description = '이름 :' + self.Final_Text + '\n해당인원 온도 :' + str(self.temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (self.nomask * 100))
 
                 # telegram 사진 문자 보내는 코드
                 f = open(IMAGE_FILE,'rb')
                 response = bot.sendPhoto(mc, f)
                 response = bot.sendMessage(mc,message_description)
 
-        #
-        message_description2 = '이름 :' + self.Final_Text + ' 해당인원 온도 :' + str(self.temperature) + ' 마스크 미착용 확률 : ' + str(
-            '%d%%' % (self.nomask * 100))
+        message_description2 = '이름 :' + self.Final_Text + '해당인원 온도 :' + str(self.temperature) + '마스크 미착용 확률 : ' + str('%d%%' % (self.nomask * 100))
         self.textdq.appendleft(message_description2)
 
         self.label_2_text(self.textdq)
