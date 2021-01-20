@@ -5,14 +5,22 @@ import socket
 import time
 from imutils.video import VideoStream
 import imagezmq
+from flirpy.camera.lepton import Lepton
 
-sender = imagezmq.ImageSender(connect_to='tcp://192.168.0.1:5555')
+thermal_camera = Lepton()
 
-rpi_name = socket.gethostname() # 라즈베리 파이가 여러개 있을 수도 있어서 이름을 가져옴
+sender = imagezmq.ImageSender(connect_to='tcp://192.168.0.1:5555') # 부여된 개별 주소에 맞게 변경
+
+#rpi_name = socket.gethostname() # 라즈베리 파이가 여러개 있을 수도 있어서 이름을 가져옴
 
 picam = VideoStream(usePiCamera=True).start()
 time.sleep(2.0)  # warm up 시간
 
 while True:  # 이미지를 보냄 Ctrl-C 하면 중지
-    image = picam.read()
-    sender.send_image(rpi_name, image)
+    img = picam.read()
+    sender.send_image('visible_image', img) #가시광선 카메라 이미지 전송
+
+    thermal_image_data = thermal_camera.grab()
+    sender.send_image('thermal_image', thermal_image_data) #적외선 카메라 이미지 전송
+
+thermal_camera.close()
