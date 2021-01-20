@@ -1,6 +1,5 @@
 # Data Set을 만들어서 학습.
 import flir_image_extractor
-from flirpy.camera.lepton import Lepton
 import cv2
 import numpy as np
 import os
@@ -34,7 +33,6 @@ facenet = cv2.dnn.readNet('../training custom dataset/face_detector/deploy.proto
 model = load_model('../training custom dataset/mask_detector.model')
 # MaskDetector 모델 > Keras 모델
 
-thermal_camera = Lepton() #Lepton 카메라 연결
 fir = flir_image_extractor.FlirImageExtractor()
 
 class MainWindow(QWidget):
@@ -129,7 +127,7 @@ class MainWindow(QWidget):
     # view camera
     def viewCam(self):
         ret, img = self.cap.read() #가시광선 카메라 현재화면을 이미지로 read
-        thermal_image_data = thermal_camera.grab() #적외선 카메라 현재화면을 이미지로 grab
+        ret, thermal_image_data = self.capthermal.read() #적외선 카메라 현재화면을 이미지로 read
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE) #가시광선 카메라 모습을 정상적으로 읽기위해 rotate. 카메라가 비추는 방향에 따라 삭제또는 유지
 
         h, w = img.shape[:2]
@@ -183,7 +181,7 @@ class MainWindow(QWidget):
             cv2.putText(result_img, text=label, org=(x1, y1 - 10), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=4, color=color, thickness=6, lineType=cv2.LINE_AA)
 
             # 체온체크 코드
-            thermal_np = fir.process_image(thermal_image_data) # Lepton에서 따온 이미지를 Flir Image Extractor Library을 이용하여 이미지 처리
+            thermal_np = fir.process_image(thermal_image_data) # 적외선 카메라에서 따온 이미지를 Flir Image Extractor Library을 이용하여 이미지 처리
             max_temperature = self.get_max_temperature(thermal_np, x1, y1, x2, y2) # 가공된 이미지를 이용해 기존에 구한 얼굴 영역만을 대상으로 가장 높은 온도 반환
 
             # 마스크 미착용 확률이 일정확률 이상 이거나 얼굴 영역 최고온도가 고열인 경우
