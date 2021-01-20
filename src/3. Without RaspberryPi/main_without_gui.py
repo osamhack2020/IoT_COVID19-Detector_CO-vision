@@ -129,7 +129,7 @@ while cap.isOpened():
         thermal_np = fir.process_image(thermal_image_data)  # Lepton에서 따온 이미지를 Flir Image Extractor Library을 이용하여 이미지 처리
         max_temperature = get_max_temperature(thermal_np, x1, y1, x2, y2) # 가공된 이미지를 이용해 기존에 구한 얼굴 영역만을 대상으로 가장 높은 온도 반환
 
-        # 마스크 미착용 확률이 일정확률 이상 이거나 얼굴 영역 최고온도가 고열인 경우
+        # 마스크 미착용 확률이 일정확률 이상 이거나 얼굴 영역 최고온도가 37.5도 이상인 경우
         if nomask >= 0.75 or max_temperature >= 37.5:
             # 해당 인원 사진 저장
             number += 1
