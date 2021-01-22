@@ -49,10 +49,12 @@ class MainWindow(QWidget):
         self.timer.timeout.connect(self.viewCam)
         self.timer.timeout.connect(self.viewThermalCam)
         self.cap = cv2.VideoCapture(0)  # 0으로 하면 웹캠 실시간으로 나옴
-        self.capthermal = cv2.VideoCapture(1) # 적외선 카메라 연결
+        self.capthermal = cv2.VideoCapture(1) # 적외선 카메라
+
         self.number = 0
         self.dq = deque()
         self.textdq = deque([])
+
         # start timer
         self.timer.start(20)
         image = cv2.imread('Co-Vision_Logo.png')
@@ -71,22 +73,22 @@ class MainWindow(QWidget):
         self.nomask = 0
         self.response = 0
 
-    def put_img_to_labels(self, dq):
-        image = self.dq[0]
-        image = cv2.resize(image, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
+    def put_img_to_labels(self, dq): #라벨에 이미지를 보여주는 함수. 현재는 특이 인원 감지시 라벨에 그 캡처화면을 띄우는 용도로 사용
+        image = self.dq[0] #가장 최근 이미지를 저장
+        image = cv2.resize(image, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR) #라벨에 맞게 넣어야되므로 이미지를 비율에 맞게 리사이즈
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         height, width, channel = image.shape
         step = channel * width
         qImg = QImage(image.data, width, height, step, QImage.Format_RGB888)
-        self.ui.label.setPixmap(QPixmap.fromImage(qImg))
+        self.ui.label.setPixmap(QPixmap.fromImage(qImg)) #라벨에 가장 최근이미지 설정
 
-    def label_2_text(self, textdq):
+    def label_2_text(self, textdq): #로그 띄우는 용도로 사용중
         TEXT = ""
-        if len(self.textdq) > 10:
+        if len(self.textdq) > 10: #현재 덱에있는 상세정보의 개수가 10개 이상이면 가장 오래된 오른쪽부터 pop
             textdq.pop()
-        for text in textdq:
+        for text in textdq: #덱에 있는 상세정보를 하나씩 TEXT에 줄바꿈으로 구분하여 저장
             TEXT += text + '\n'
-        self.ui.label_2.setText(TEXT)
+        self.ui.label_2.setText(TEXT) #label_2 라벨에 텍스트 내용은 TEXT에 있는 내용으로 저장해서 보여줌
 
     def find_name_and_display(self, IMAGE_FILE, x1, x2, result_img, color):
         with io.open(IMAGE_FILE, 'rb') as image_file:
@@ -142,7 +144,7 @@ class MainWindow(QWidget):
         dets = facenet.forward()  # facedection 결과 저장
         result_img = img.copy()
 
-        # detect face 한뒤, 그 얼굴영역이 마스크 썼을 확률을 계산하여 추가한다.
+        # detect face 한뒤, 그 얼굴영역이 마스크 썼을 확률을 계산하여 추가한다. 얼굴 인식한 값을 이용해 이미지 처리를 진행하는 부분
         for i in range(dets.shape[2]):  # 저장이 된 것을 loop을 돌면서 저장. detections.shape[2]는 모델이 가져오는 최대 박스의 갯수. 200이므로 최대 200개의 얼굴을 인식할수 있다.
             confidence = dets[0, 0, i, 2]
             # 검사하는데 detection의 결과가 자신있는 정도.
@@ -184,22 +186,24 @@ class MainWindow(QWidget):
             thermal_np = fir.process_image(thermal_image_data) # 적외선 카메라에서 따온 이미지를 Flir Image Extractor Library을 이용하여 이미지 처리
             max_temperature = self.get_max_temperature(thermal_np, x1, y1, x2, y2) # 가공된 이미지를 이용해 기존에 구한 얼굴 영역만을 대상으로 가장 높은 온도 반환
 
-            # 마스크 미착용 확률이 일정확률 이상 이거나 얼굴 영역 최고온도가 고열인 경우
+            # 마스크 미착용 확률이 일정확률 이상 이거나 얼굴 영역 최고온도가 고열인 경우 해당 인원 사진과 상세정보를 띄워주기 위함
             if self.nomask >= 0.75 or max_temperature >= 37.5:
                 # 해당 인원 사진 저장
-                self.dq.appendleft(face)
-                if len(self.dq) == 4:
+                self.dq.appendleft(face) #해당 사진 덱에 가장 왼쪽에 저장
+                if len(self.dq) == 4: #사진이 4장이되면 가장 오래된 사진 pop
                     self.dq.pop()
-                self.number += 1
-                cv2.imwrite('No_Mask-High_Temp/' + str(i) + '_' + str('No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + 'Temp_' + str(max_temperature) + '.jpg', result_img)
+                self.number += 1 #사람 순서 저장
                 IMAGE_FILE = 'No_Mask-High_Temp/' + str(i) + '_' + str('No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + 'Temp_' + str(max_temperature) + '.jpg'
+                cv2.imwrite(IMAGE_FILE, result_img)
+
+                #이미지 처리를 위해 임시저장하고 임시저장한 이미지 이용하기위해 임시저장한 파일의 이름도 같이 텍스트로 저장
 
                 saved_file = 'No_Mask_File/' + str(i) + '_' + str('No_Mask%d%%_' % (self.nomask * 100) + str(self.number)) + '.jpg'
-                cv2.imwrite(saved_file, result_img)
-                self.put_img_to_labels(self.dq)
-                self.Final_Text = self.find_name_and_display(IMAGE_FILE, x1, x2, result_img, color)
+                cv2.imwrite(saved_file, result_img) #임시가 아닌 최종이미지 저장
+                self.put_img_to_labels(self.dq) #캡쳐된 이미지를 라벨에 넣어서 이미지를 보여주기 위해 호출. 해당 호출로 라벨에 이미지 처리되어 특이사항이 감지된 캡처화면이 나오게 된다
+                self.Final_Text = self.find_name_and_display(IMAGE_FILE, x1, x2, result_img, color) #이름을 추출하기 위해 호출
 
-                # 전달할 메시지 내용 JSON형식으로 저장후 전달
+                # 전달할 메시지 내용 저장후 전달
                 message_description = '이름 :' + self.Final_Text + '\n해당인원 온도 :' + str(max_temperature) + '\n마스크 미착용 확률 : ' + str('%d%%' % (self.nomask * 100))
 
                 # telegram 사진 문자 보내는 코드
@@ -208,11 +212,11 @@ class MainWindow(QWidget):
                 self.response = bot.sendMessage(mc,message_description)
 
         message_description2 = '이름 :' + self.Final_Text + '해당인원 온도 :' + str(self.temperature) + '마스크 미착용 확률 : ' + str('%d%%' % (self.nomask * 100))
-        self.textdq.appendleft(message_description2)
+        self.textdq.appendleft(message_description2) #특이사항 인원 상세정보를 덱의 가장 첫순서에 삽입
 
-        self.label_2_text(self.textdq)
+        self.label_2_text(self.textdq) #상세정보가 저장된 덱을 GUI로 보여주기 위해 함수 호출 (로그를 보여줌)
 
-        # self.ui.label_2.setText(self.textdq[0])
+        # 최종적으로 현재 이미지 처리된 영상부분을 띄워주는 부분. result_img를 resize하여 QPixmap을 이용해 main_video로 띄워줌
         # image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE) #이미 가시광선 카메라는 rotate하고나서 이미지처리 했으므로 주석처리
         image = cv2.resize(result_img, dsize=(0, 0), fx=0.2, fy=0.2, interpolation=cv2.INTER_LINEAR)
         # convert image to RGB format
