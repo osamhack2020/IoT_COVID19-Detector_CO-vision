@@ -10,6 +10,8 @@ import io
 from google.cloud import vision
 import telepot
 
+import sys
+
 # import some PyQt5 modules
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QWidget
@@ -83,11 +85,20 @@ class MainWindow(QWidget):
         self.response = 0
 
     def recv_img(self):
-        self.name, self.temp_img = self.image_hub.recv_image()  # 이미지를 지속적으로 전송하고 계속해서 전송받으므로 가시광선 이미지와 적외선 이미지가 교차하여 들어오는 것을 분류
+        # Example
+        # rpi_name, image = image_hub.recv_image()
+        # cv2.imshow(rpi_name, image) # 1 window for each RPi
+        # > If all the images come from a single rpi_name, then all the image streams will appear in a single window.
+        # > But if the income stream has images from multiple rpi_name's, cv2.imshow() then automatically sorts the images by rpi_name into unique windows.
+        # >> Notice that we do not have to specify any "connect_to" address for the Mac hub. The default localhost address is fine and is the same for every RPi that will be connecting to this Mac in the REQ/REP messaging pattern.
+        # >>> cv2.imshow의 경우 rpi_name에 따라 자동으로 창이 분리되어 띄워진다고 한다. 이를 이용하여 이미지를 따로 저장하는 것도 가능하지 않을까?
+
+        self.name, self.temp_img = self.image_hub.recv_image()
+        # 이미지를 지속적으로 전송하고 계속해서 전송받으므로 가시광선 이미지와 적외선 이미지가 들어오는 것을 분류
         if self.name == 'visible_image':
-            rpi, self.visible_img = self.image_hub.recv_image()  # 가시광선 카메라 현재화면 이미지 read
+            rpi_visible, self.visible_img = self.temp_img  # 가시광선 카메라 현재화면 이미지 read
         elif self.name == 'thermal_image':
-            rpi, self.thermal_image_data = self.image_hub.recv_image()  # 적외선 카메라 현재화면을 이미지로 grab
+            rpi_thermal, self.thermal_image_data = self.temp_img  # 적외선 카메라 현재화면을 이미지로 grab
         self.image_hub.send_reply(b'OK')  # 요청-응답 패턴을 사용하므로 지속적으로 수신 성공메시지를 보내야 함
         #self.image_hub.close()
 
