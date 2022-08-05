@@ -10,7 +10,8 @@
 	<a href="https://github.com/osamhack2020/IoT_COVID19-Detector_CO-vision/search?l=TSX&type=code"><img alt="GitHub language count" src="https://img.shields.io/github/languages/count/osamhack2020/IoT_COVID19-Detector_CO-vision"></a>
 	
 </p>
-<img width="635" alt="image" src="https://user-images.githubusercontent.com/41141851/183014153-038a06ad-2b13-4513-8d65-fbbbdeae9935.png">
+<img width="333" src="https://user-images.githubusercontent.com/41141851/183017897-40170fbf-1771-44eb-a3e5-21bff88dd0e2.png"><img width="335" src="https://user-images.githubusercontent.com/41141851/183014153-038a06ad-2b13-4513-8d65-fbbbdeae9935.png">
+
 ## Introduction
 <p align="center">
 <img alt="GitHub contributors" src="https://user-images.githubusercontent.com/41141851/97099932-c0968d00-16d1-11eb-96b0-1afd2c0c455f.PNG" width="50%">
